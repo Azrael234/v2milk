@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+	<link rel="stylesheet" href="assets/css/material-design-iconic-font.min.css">
+	<link rel="stylesheet" href="assets/css/animate.min.css">
+	<link rel="stylesheet" href="assets/css/bootstrap.css">
+	<link rel="stylesheet" href="assets/css/core.css">
+	<link rel="stylesheet" href="assets/css/misc-pages.css">
+	<link rel="stylesheet" href="assets/css/app.css"> 
+	<link rel="stylesheet" href="assets/css/font-awesome.min.css">
+	<link rel="stylesheet" href="assets/css/misc-pages.css">
+<title>V2Milk</title>
+</head>
+<body class="simple-page">
+	<div class="simple-page-wrap">
+		<div class="simple-page-logo swing">
+			<a href="javascriot:void()">
+				<span><i class="fa fa-sign-in"></i></span>
+				<span>选择套餐</span>
+			</a>
+		</div>
+		<div class="simple-page-form flipInY" id="login-form">
+			<div class="form-group">
+				<select name="relatedservice" id="inputPlan" class="form-control">
+                </select>
+            </div>
+			<input type="submit" id="btn-submit-plan" class="btn btn-primary" value="选择此套餐">
+		</div>
+		<div class="simple-page-footer">
+			<p class="copyright"><a href="javascriot:void()" id="btn-quit">退出</a></p>
+		</div>
+	</div>
+	<script>
+    	require('./assets/js/selectplan')
+	</script>
+</body>
+</html>

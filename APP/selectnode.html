@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+	<link rel="stylesheet" href="assets/css/material-design-iconic-font.min.css">
+	<link rel="stylesheet" href="assets/css/animate.min.css">
+	<link rel="stylesheet" href="assets/css/bootstrap.css">
+	<link rel="stylesheet" href="assets/css/core.css">
+	<link rel="stylesheet" href="assets/css/misc-pages.css">
+	<link rel="stylesheet" href="assets/css/app.css"> 
+	<link rel="stylesheet" href="assets/css/font-awesome.min.css">
+	<link rel="stylesheet" href="assets/css/misc-pages.css">
+<title>V2Milk</title>
+</head>
+<body class="simple-page">
+	<div class="simple-page-wrap">
+		<div class="simple-page-logo swing">
+			<a href="javascriot:void()">
+				<span><i class="fa fa-sign-in"></i></span>
+				<span>选择节点</span>
+			</a>
+		</div>
+		<div class="simple-page-form flipInY" id="login-form">
+			<h5>套餐：</h5>
+			<label type="text" id="btn-package"></label>
+			<h5>已使用流量：</h5>
+			<label type="text" id="btn-usage"></label>
+			</br>
+			<div class="form-group">
+				<h5>选择线路：</h5>
+				<select name="relatedservice" id="inputNode" class="form-control">
+                </select>
+				<h5>选择模式：</h5>
+				<select name="relatedservice" id="inputMode" class="form-control">
+					<option value="PAC">PAC</option>
+					<option value="GLOBAL">全局</option>
+                </select>
+            </div>
+			<input type="submit" id="btn-connect" class="btn btn-primary" value="连接">
+		</div>
+		<div class="simple-page-footer">
+			<p class="copyright pull-left"><a href="javascriot:void()" id="btn-log">显示日志</a></p>
+			<p class="footer-menu pull-right"><a href="javascriot:void()" id="btn-quit">退出</a></p>
+		</div>
+	</div>
+	<script>
+    	require('./assets/js/selectnode')
+	</script>
+</body>
+</html>
