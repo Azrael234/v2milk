@@ -1,0 +1,25 @@
+{
+  "name": "V2Mark",
+  "version": "1.0.0",
+  "description": "Very 2 Mark",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": "https://loli.ren/V2Mark",
+  "keywords": [
+    "V2Mark"
+  ],
+  "author": "Suzume",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "electron": "^2.0.0"
+  },
+  "dependencies": {
+    "child_process": "^1.0.2",
+    "electron-store": "^2.0.0",
+    "http": "0.0.0",
+    "path": "^0.12.7",
+    "request": "^2.87.0"
+  }
+}
