@@ -2,7 +2,7 @@
   "name": "V2Mark",
   "version": "1.0.0",
   "description": "Very 2 Mark",
-  "main": "main.js",
+  "main": "src/main/main.js",
   "scripts": {
     "start": "electron ."
   },
