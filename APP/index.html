@@ -145,11 +145,6 @@
                             <li class="footer s-12 p-2 text-center"><a href="#">查看全部消息</a></li>
                         </ul>
                     </li>
-                    <li>
-                        <a class="nav-link ml-2" data-toggle="control-sidebar">
-                            <i class="icon-tasks "></i>
-                        </a>
-                    </li>
                 </ul>
             </div>
         </div>
@@ -182,8 +177,8 @@
                         <a class="nav-link" id="v-pills-4-tab" data-toggle="pill" href="#v-pills-4"><i class="icon icon-queue"></i>系统日志</a>
                     </li>
                 </ul>
-                <a class="btn-fab fab-right btn-primary" data-toggle="control-sidebar">
-                    <i class="icon icon-menu"></i>
+                <a class="btn-fab fab-right btn-danger">
+                    <i class="icon icon-remove" id="V2Milk-stopServers"></i>
                 </a>
             </div>
         </div>
@@ -191,52 +186,6 @@
     <div class="container-fluid relative animatedParent animateOnce">
         <div class="tab-content pb-3" id="v-pills-tabContent">
             <div class="tab-pane animated fadeInUpShort show active" id="v-pills-1">
-                <div class="row my-3">
-                    <div class="col-md-3">
-                        <div class="counter-box white r-5 p-3">
-                            <div class="p-4">
-                                <div class="float-right">
-                                    <span class="icon icon-note-list text-light-blue s-48"></span>
-                                </div>
-                                <div class="counter-title">上行流量</div>
-                                <h5 class="sc-counter mt-3">0</h5>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="counter-box white r-5 p-3">
-                            <div class="p-4">
-                                <div class="float-right">
-                                    <span class="icon icon-mail-envelope-open s-48"></span>
-                                </div>
-                                <div class="counter-title ">下行流量</div>
-                                <h5 class="sc-counter mt-3">0</h5>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="counter-box white r-5 p-3">
-                            <div class="p-4">
-                                <div class="float-right">
-                                    <span class="icon icon-stop-watch3 s-48"></span>
-                                </div>
-                                <div class="counter-title">剩余流量</div>
-                                <h5 class="sc-counter mt-3">0</h5>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="counter-box white r-5 p-3">
-                            <div class="p-4">
-                                <div class="float-right">
-                                    <span class="icon icon-inbox-document-text s-48"></span>
-                                </div>
-                                <div class="counter-title">套餐名称</div>
-                                <h5 class="sc-counter mt-3">0</h5>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <div class="row my-3">
                     <div class="col-md-12">
                         <div class="white p-5 r-5">
@@ -264,100 +213,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="white p-5 r-5">
-                            <div class="card-title">
-                                <h5>流量报表</h5>
-                            </div>
-                            <div class="row my-3">
-                                <div class="col-md-12" style="height: 350px">
-                                    <canvas data-chart="line" data-dataset="[
-                                                            [0, 15, 4, 30, 8, 5, 18],
-                                                            [1, 7, 21, 4, 12, 5, 10],
-                                                
-                                                            ]" data-labels="['A', 'B', 'C', 'D', 'E', 'F']"
-                                            data-dataset-options="[
-                                                            {   label:'上传',
-                                                                fill: true,
-                                                                backgroundColor: 'rgba(50,141,255,.2)',
-                                                                borderColor: '#328dff',
-                                                                pointBorderColor: '#328dff',
-                                                                pointBackgroundColor: '#fff',
-                                                                pointBorderWidth: 2,
-                                                                borderWidth: 1,
-                                                                borderJoinStyle: 'miter',
-                                                                pointHoverBackgroundColor: '#328dff',
-                                                                pointHoverBorderColor: '#328dff',
-                                                                pointHoverBorderWidth: 1,
-                                                                pointRadius: 3,
-                                                                
-                                                            },
-                                                            {  
-                                                                label:'下载',
-                                                                fill: false,
-                                                                borderDash: [5, 5],
-                                                                backgroundColor: 'rgba(87,115,238,.3)',
-                                                                borderColor: '#2979ff',
-                                                                pointBorderColor: '#2979ff',
-                                                                pointBackgroundColor: '#2979ff',
-                                                                pointBorderWidth: 2,
-                                                
-                                                                borderWidth: 1,
-                                                                borderJoinStyle: 'miter',
-                                                                pointHoverBackgroundColor: '#2979ff',
-                                                                pointHoverBorderColor: '#fff',
-                                                                pointHoverBorderWidth: 1,
-                                                                pointRadius: 3,
-                                                                
-                                                            }
-                                                            ]"
-                                            data-options="{
-                                                                    maintainAspectRatio: false,
-                                                                    legend: {
-                                                                        display: true
-                                                                    },
-                                                        
-                                                                    scales: {
-                                                                        xAxes: [{
-                                                                            display: true,
-                                                                            gridLines: {
-                                                                                zeroLineColor: '#eee',
-                                                                                color: '#eee',
-                                                                            
-                                                                                borderDash: [5, 5],
-                                                                            }
-                                                                        }],
-                                                                        yAxes: [{
-                                                                            display: true,
-                                                                            gridLines: {
-                                                                                zeroLineColor: '#eee',
-                                                                                color: '#eee',
-                                                                                borderDash: [5, 5],
-                                                                            }
-                                                                        }]
-                                                        
-                                                                    },
-                                                                    elements: {
-                                                                        line: {
-                                                                        
-                                                                            tension: 0.4,
-                                                                            borderWidth: 1
-                                                                        },
-                                                                        point: {
-                                                                            radius: 2,
-                                                                            hitRadius: 10,
-                                                                            hoverRadius: 6,
-                                                                            borderWidth: 4
-                                                                        }
-                                                                    }
-                                                                }">
-                                    </canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
             <div class="tab-pane animated fadeInUpShort go" id="v-pills-2">
                 <div class="row my-3">
@@ -375,11 +230,37 @@
                 </div>
             </div>
             <div class="tab-pane animated fadeInUpShort go" id="v-pills-4">
-                <div class="row">
-                    <div class="col-md-12 mx-md-auto m-5">
-                        <div class="card no-b shadow">
-                            <div class="card-body p-4">
-                                <textarea rows="10" cols="20" class="form-control" id="V2log"></textarea>
+                <div class="row my-3">
+                    <div class="col-md-6">
+                        <div class="white p-5 r-5">
+                            <div class="card-title">
+                                <h5>系统日志</h5>
+                            </div>
+                            <div class="row my-3">
+                                 <div class="col-md-12">
+                                    <div class="form-row">
+                                        <div class="form-group col-md-12">
+                                            <div id="V2log" style="overflow-y:auto;overflow-x:auto;height:300px;margin-top:20px;"></div>
+                                        </div>
+                                    </div>
+                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="white p-5 r-5">
+                            <div class="card-title">
+                                <h5>V2Ray日志</h5>
+                            </div>
+                            <div class="row my-3">
+                                 <div class="col-md-12">
+                                    <div class="form-row">
+                                        <div class="form-group col-md-12">
+                                            <div id="V2Status" style="overflow-y:auto;overflow-x:auto;height:300px;margin-top:20px;"></div>
+                                        </div>
+                                    </div>
+                                 </div>
                             </div>
                         </div>
                     </div>
@@ -404,90 +285,6 @@
             </div>
         </div>
     </div>
-</div>
-
-<aside class="control-sidebar fixed white ">
-    <div class="slimScroll">
-        <div class="sidebar-header">
-            <h4>服务器状态</h4>
-            <a href="#" data-toggle="control-sidebar" class="paper-nav-toggle  active"><i></i></a>
-        </div>
-        <div class="p-3">
-            <div>
-                <div class="my-3">
-                    <small>网络负载 25%</small>
-                    <div class="progress" style="height: 3px;">
-                        <div class="progress-bar bg-success" role="progressbar" style="width: 25%;" aria-valuenow="25"
-                             aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                </div>
-                <div class="my-3">
-                    <small>网络负载 45%</small>
-                    <div class="progress" style="height: 3px;">
-                        <div class="progress-bar bg-info" role="progressbar" style="width: 45%;" aria-valuenow="45"
-                             aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                </div>
-                <div class="my-3">
-                    <small>网络负载 60%</small>
-                    <div class="progress" style="height: 3px;">
-                        <div class="progress-bar bg-warning" role="progressbar" style="width: 60%;" aria-valuenow="60"
-                             aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                </div>
-                <div class="my-3">
-                    <small>网络负载 75%</small>
-                    <div class="progress" style="height: 3px;">
-                        <div class="progress-bar bg-danger" role="progressbar" style="width: 75%;" aria-valuenow="75"
-                             aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                </div>
-                <div class="my-3">
-                    <small>网络负载 100%</small>
-                    <div class="progress" style="height: 3px;">
-                        <div class="progress-bar" role="progressbar" style="width: 100%;" aria-valuenow="100"
-                             aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="table-responsive">
-            <table id="recent-orders" class="table table-hover mb-0 ps-container ps-theme-default">
-                <tbody>
-                <tr>
-                    <td>
-                        <a href="#">账单 - 2333</a>
-                    </td>
-                    <td>
-                        <span class="badge badge-success">已支付</span>
-                    </td>
-                    <td>¥ 233.33</td>
-                </tr>
-                <tr>
-                    <td>
-                        <a href="#">账单 - 6666</a>
-                    </td>
-                    <td>
-                        <span class="badge badge-warning">已逾期</span>
-                    </td>
-                    <td>¥ 666.66</td>
-                </tr>
-                <tr>
-                    <td>
-                        <a href="#">账单 - 1234</a>
-                    </td>
-                    <td>
-                        <span class="badge badge-success">已支付</span>
-                    </td>
-                    <td>¥ 123.45</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</aside>
-
-<div class="control-sidebar-bg shadow white fixed"></div>
 </div>
 
 <script src="assets/js/app.js"></script>

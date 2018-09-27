@@ -1,22 +1,33 @@
 'use strict';
-
+require('./config.js')
 const remote = require('electron').remote
 const {shell} = require('electron')
+const fs = require("fs")
+const path = require('path')
 
 const ipc = require('electron').ipcRenderer;
 const currentWindow = remote.getCurrentWindow();
 const milksubmit = document.getElementById('V2Milk-submit')
+const milkstop = document.getElementById('V2Milk-stopServers')
+const btnlog = document.getElementById('V2log')
+const btnstatus = document.getElementById('V2Status')
+const LangFile = path.join(path.dirname(__dirname), "lang", "lang.json")
+const LangConfig = JSON.parse(fs.readFileSync(LangFile))
 var PHP = require('./PHP.js')
 
 milksubmit.addEventListener('click', () => {
     var uuu = document.getElementById('emailF').value
     var ppp = document.getElementById('passwordF').value
     if(uuu == "" || ppp == ""){
-        alert('请输入用户名和密码')
+        alert(getLang("UserPassNeeded"))
     }else{
         var upa = '{"email":"' + uuu + '","password":"' + ppp + '"}'
         ipc.send('onClickControl', 'onlogin', upa)
     }
+})
+
+milkstop.addEventListener('click', () => {
+    ipc.send('onClickControl', 'onV2RayStopServers', '')
 })
 
 ipc.on("onMainCall", function(event, message) {
@@ -30,10 +41,19 @@ ipc.on("onMainCallExec", function(event, action, message) {
             loadPackages(message)
             break
         default:
-            console.log("非法访问")
+            console.log(getLang("IllegalAccess"))
             break
     }
 });
+
+ipc.on("savedDataLogin", function(event) {
+    var uuu = document.getElementById('emailF').value
+    var ppp = document.getElementById('passwordF').value
+    if(uuu != "" || ppp != ""){
+        var upa = '{"email":"' + uuu + '","password":"' + ppp + '"}'
+        ipc.send('onClickControl', 'onloginTry', upa)
+    }
+})
 
 ipc.on("onMainFrameChange", function(event, message) {
     var data = JSON.parse(message);
@@ -54,12 +74,61 @@ ipc.on("onMainFrameChange", function(event, message) {
                     document.getElementById(action[0]).value = action[2]
                     break
                 default:
-                    console.log("非法访问")
+                    console.log(getLang("IllegalAccess"))
                     break
             }
         }
     }
 });
+
+ipc.on("V2Ray-log", function(event, message) {
+    var p = document.createElement("p")
+    p.innerHTML = message
+    p.style = "line-height:12px;font-size:12px;margin-bottom:2px;margin-top:2px;margin-left:3px;"
+    p.style.color = "gray"
+    btnlog.append(p)
+    btnlog.scrollTop = btnlog.scrollHeight;
+})
+
+ipc.on("V2Ray-status", function(event, message) {
+    var p = document.createElement("p")
+    p.innerHTML = message
+    p.style = "line-height:12px;font-size:12px;margin-bottom:2px;margin-top:2px;margin-left:3px;"
+    if(message.indexOf("[Warning]") > -1){
+        p.style.color = "orange"
+    }else if(message.indexOf("[Info]") > -1){
+        p.style.color = "gray"
+    }else{
+        p.style.color = "lightgray"
+    }
+    btnstatus.append(p)
+    btnstatus.scrollTop = btnstatus.scrollHeight;
+})
+
+ipc.on("V2Ray-jsonStatus", function(event, message) {
+    message = JSON.parse(message)
+    var p = document.createElement("p")
+    p.innerHTML = message.message
+    p.style = "line-height:12px;font-size:12px;margin-bottom:2px;margin-top:2px;margin-left:3px;"
+    switch(message.status){
+        case "success":
+            p.style.color = "green"
+            break
+        case "error":
+            p.style.color = "red"
+            break
+        default:
+            p.style.color = "gray"
+            break
+    }
+    btnstatus.append(p)
+    btnstatus.scrollTop = btnstatus.scrollHeight;
+})
+
+ipc.on("V2Ray-LogClean", function(event, message) {
+    //btnlog.innerHTML = message
+    btnstatus.innerHTML = message
+})
 
 function afterLoginExec(message){
     try{
@@ -71,7 +140,7 @@ function afterLoginExec(message){
             document.getElementById('userImageF').setAttribute("src","http://cn.gravatar.com/avatar/" + PHP.md5(message['email']) + "?s=64")
         }
         document.getElementById('useronlineT').setAttribute("class", "icon-circle text-success blink")
-        document.getElementById('useronlineF').innerHTML = "Online"
+        document.getElementById('useronlineF').innerHTML = " Online"
         document.getElementById('loginButtonF').remove()
         document.getElementById('registerButtonF').remove()
     }catch(ex){
@@ -92,31 +161,46 @@ function loadPackages(message){
 }
 
 function loadPackage(mpackage){
-    var routeList = document.getElementById('routePackages')
-    var tr = document.createElement("tr")
-    var td = document.createElement("td")
-    td.innerHTML = mpackage.package
-    tr.appendChild(td)
-    var td = document.createElement("td")
-    td.innerHTML = ''
-    tr.appendChild(td)
-    var td = document.createElement("td")
-    td.innerHTML = ''
-    tr.appendChild(td)
-    routeList.appendChild(tr)
-    for (var i = 0; i < mpackage.nodes.length; i++) {
-        var nodename = mpackage.nodes[i].split("|")
+    if(mpackage.nodes.length > 0){
+        var routeList = document.getElementById('routePackages')
         var tr = document.createElement("tr")
         var td = document.createElement("td")
-        td.innerHTML = nodename[0]
+        td.innerHTML = mpackage.package
         tr.appendChild(td)
         var td = document.createElement("td")
-        td.innerHTML = '<button type="button" class="btn btn-primary btn-xs" onclick="onClickControl(' + "'register','null'" + ')">二维码</button>'
+        td.innerHTML = ''
         tr.appendChild(td)
         var td = document.createElement("td")
-        td.innerHTML = '<button type="button" class="btn btn-success btn-xs" onclick="onClickControl(' + "'onV2RayConnect','" + mpackage.uuid + "|" + mpackage.nodes[i].replace(/[\r\n]/g, "") + "'" +')">连接</button>'
+        td.innerHTML = ''
         tr.appendChild(td)
         routeList.appendChild(tr)
+        for (var i = 0; i < mpackage.nodes.length; i++) {
+            var nodename = mpackage.nodes[i].split("|")
+            var tr = document.createElement("tr")
+            var td = document.createElement("td")
+            td.innerHTML = nodename[0]
+            tr.appendChild(td)
+            var td = document.createElement("td")
+            td.innerHTML = '<button type="button" class="btn btn-primary btn-xs" onclick="onClickControl(' + "'register','null'" + ')">' + getLang("QRCode") + '</button>'
+            tr.appendChild(td)
+            var td = document.createElement("td")
+            td.innerHTML = '<button type="button" class="btn btn-info btn-xs" onclick="onClickControl(' + "'onV2RayGlobalConnect','" + mpackage.uuid + "|" + mpackage.nodes[i].replace(/[\r\n]/g, "") + "'" +')">' + getLang("ConnectGlobalMode") + '</button><button type="button" class="btn btn-success btn-xs" onclick="onClickControl(' + "'onV2RayPACConnect','" + mpackage.uuid + "|" + mpackage.nodes[i].replace(/[\r\n]/g, "") + "'" +')">' + getLang("ConnectPACMode") + '</button>'
+            tr.appendChild(td)
+            routeList.appendChild(tr)
 
+        }
     }
+}
+
+function getLang(lang, msg = []){
+    var langf = LangConfig[global.DefaultLang][0][lang]
+    if(typeof(langf) == "undefined"){
+        langf = lang
+    }else{
+        for(var i = 0; i < msg.length; i++){
+            msga = msg[i].split("|")
+            langf = replaceAll(langf, msga[0].toString() , msga[1].toString())
+        }
+    }
+    return langf
 }
