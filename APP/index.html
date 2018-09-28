@@ -75,87 +75,14 @@
     </div>
 </div>
 <div id="app">
-<aside class="main-sidebar fixed offcanvas shadow">
-    <section class="sidebar">
-        <div class="w-80px mt-3 mb-3 ml-3">
-            <img src="assets/img/basic/logo.png" alt="">
-        </div>
-        <div class="relative">
-            <p>
-            <div class="user-panel p-3 light mb-2">
-                <div class="clearfix">
-                    <div class="float-left image">
-                        <img id="userImageF" class="user_avatar" src="assets/img/dummy/u2.png" alt="User Image">
-                    </div>
-                    <div class="float-left info">
-                        <h6 id="usernameF" class="font-weight-light mt-2 mb-1">请登录</h6>
-                            <i id="useronlineT" class="icon-circle text-danger blink"></i><a id="useronlineF" href="#"> Offline</a>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <ul class="sidebar-menu">
-            <li class="header"><strong>主选单</strong></li>
-            <li class="treeview active">
-                <ul class="treeview-menu">
-                    <li id="loginButtonF"><a data-toggle="pill" href="#v-pills-4" onclick="onClickControl('login', 'null')"><i class="icon icon-folder5"></i>登陆</a>
-                    </li>
-                    <li id="registerButtonF"><a href="javascript:void(0)" onclick="onClickControl('register', 'null')"><i class="icon icon-folder5"></i>注册</a>
-                    </li>
-                </ul>
-            </li>
-        </ul>
-    </section>
-</aside>
-
-<div class="has-sidebar-left">
-    <div class="sticky">
-        <div class="navbar navbar-expand navbar-dark d-flex justify-content-between bd-navbar blue accent-3">
-            <div class="relative">
-                <a href="#" data-toggle="offcanvas" class="paper-nav-toggle pp-nav-toggle">
-                    <i></i>
-                </a>
-            </div>
-            <div class="navbar-custom-menu p-t-10">
-                <ul class="nav navbar-nav">
-                    <li class="dropdown custom-dropdown messages-menu">
-                        <a href="#" class="nav-link" data-toggle="dropdown">
-                            <i class="icon-message "></i>
-                            <span class="badge badge-success badge-mini rounded-circle">0</span>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <ul class="menu pl-2 pr-2">
-                                    <li>
-                                        <a href="#">
-                                            <div class="avatar float-left">
-                                                <img src="assets/img/dummy/u4.png" alt="">
-                                                <span class="avatar-badge busy"></span>
-                                            </div>
-                                            <h4>
-                                                测试
-                                                <small><i class="icon icon-clock-o"></i>测试消息</small>
-                                            </h4>
-                                            <p>这是测试消息</p>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li class="footer s-12 p-2 text-center"><a href="#">查看全部消息</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="page has-sidebar-left height-full">
+<div class="page height-full">
     <header class="blue accent-3 relative nav-sticky">
         <div class="container-fluid text-white">
+            <br>
             <div class="row p-t-b-10 ">
                 <div class="col">
-                    <h4>
+                    <h4 id="HDashboard">
                         <i class="icon-box"></i>
                         Dashboard
                     </h4>
@@ -164,21 +91,23 @@
             <div class="row">
                 <ul class="nav responsive-tab nav-material nav-material-white" id="v-pills-tab">
                     <li>
-                        <a class="nav-link active" id="v-pills-1-tab" data-toggle="pill" href="#v-pills-1">
-                            <i class="icon icon-home2"></i>节点列表</a>
+                        <a class="nav-link active" id="v-pills-1-tab" data-toggle="pill" href="#v-pills-1"><div id="HRoutes">Routes</div></a>
                     </li>
                     <li>
-                        <a class="nav-link" id="v-pills-2-tab" data-toggle="pill" href="#v-pills-2"><i class="icon icon-plus-circle mb-3"></i>自定义节点</a>
+                        <a class="nav-link" id="v-pills-2-tab" data-toggle="pill" href="#v-pills-2"><div id="HDIY">Custom Routes</div></a>
                     </li>
                     <li>
-                        <a class="nav-link" id="v-pills-3-tab" data-toggle="pill" href="#v-pills-3"><i class="icon icon-question"></i>关于我们</a>
+                        <a class="nav-link" id="v-pills-3-tab" data-toggle="pill" href="#v-pills-3"><div id="HAboutUs">About Us</div></a>
                     </li>
                     <li>
-                        <a class="nav-link" id="v-pills-4-tab" data-toggle="pill" href="#v-pills-4"><i class="icon icon-queue"></i>系统日志</a>
+                        <a class="nav-link" id="v-pills-4-tab" data-toggle="pill" href="#v-pills-4"><div id="HLog">System Log</div></a>
                     </li>
                 </ul>
                 <a class="btn-fab fab-right btn-danger">
-                    <i class="icon icon-remove" id="V2Milk-stopServers"></i>
+                    <i class="icon icon-plug" id="V2Milk-stopServers"></i>
+                </a>
+                <a class="btn-fab fab-right btn-warning" style="right:100px;">
+                    <i class="icon icon-refresh2" id="V2Milk-rebootPACServer"></i>
                 </a>
             </div>
         </div>
@@ -187,10 +116,59 @@
         <div class="tab-content pb-3" id="v-pills-tabContent">
             <div class="tab-pane animated fadeInUpShort show active" id="v-pills-1">
                 <div class="row my-3">
+                    <div class="col-md-3">
+                        <div class="counter-box white r-5 p-3">
+                            <div class="p-4">
+                                <div class="float-right">
+                                    <div class="image">
+                                        <i id="useronlineT" class="icon-circle text-danger blink" style="float:right;margin-left:-10px;"></i>
+                                        <img id="userImageF" class="user_avatar icon s-48" style="width:48.9px;margin-left:3px;" src="assets/img/dummy/u2.png">
+                                    </div>
+                                </div>
+                                <div class="counter-title"><a id="useronlineF"> Offline</a></div>
+                                <h5 class="mt-3" id="usernameF">Please Login</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="counter-box white r-5 p-3">
+                            <div class="p-4">
+                                <div class="float-right">
+                                    <span class="icon icon-mail-envelope-open s-48"></span>
+                                </div>
+                                <div class="counter-title" id="Title1">Account</div>
+                                <h5 class="mt-3" id="loginButtonF"><a class="btn btn-primary btn-xs" style="height:25px;font-size:12px;" onclick="onClickControl('login', 'null')">login</a></h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="counter-box white r-5 p-3">
+                            <div class="p-4">
+                                <div class="float-right">
+                                    <span class="icon icon-stop-watch3 s-48" id="RouteLinkedIcon"></span>
+                                </div>
+                                <div class="counter-title" id="Title2">Route</div>
+                                <h5 class="mt-3" id="RouteLinked">None</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="counter-box white r-5 p-3">
+                            <div class="p-4">
+                                <div class="float-right">
+                                    <span class="icon icon-inbox-document-text s-48"></span>
+                                </div>
+                                <div class="counter-title" id="Title3">PACServer</div>
+                                <h5 class="mt-3" id="PACServer"><a class="btn btn-warning btn-xs" style="height:25px;font-size:12px;" onclick="onClickControl('editPac', 'null')">edit</a></h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row my-3">
                     <div class="col-md-12">
                         <div class="white p-5 r-5">
                             <div class="card-title">
-                                <h5>选择节点</h5>
+                                <h5 id="HSelectRoute">Choose Route</h5>
                             </div>
                             <div class="row my-3">
                                  <div class="col-md-12">
@@ -198,9 +176,9 @@
                                         <div class="form-group col-md-12">
                                             <table class="table table-striped">
                                                 <thead>
-                                                        <th>节点</th>
-                                                        <th>二维码</th>
-                                                        <th>操作</th>
+                                                        <th id="HRoute">Route</th>
+                                                        <th id="HQRCode">QRCode</th>
+                                                        <th id="HAction">Action</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="routePackages">
@@ -223,7 +201,7 @@
                     <div class="col-md-12 mx-md-auto m-5">
                         <div class="card no-b shadow">
                             <div class="card-body p-4">
-                                <p id="aboutUs">这是一个测试Demo～～～</p>
+                                <p id="aboutUs"></p>
                             </div>
                         </div>
                     </div>
@@ -234,7 +212,7 @@
                     <div class="col-md-6">
                         <div class="white p-5 r-5">
                             <div class="card-title">
-                                <h5>系统日志</h5>
+                                <h5 id="HSysLog">System Log</h5>
                             </div>
                             <div class="row my-3">
                                  <div class="col-md-12">
@@ -251,7 +229,7 @@
                     <div class="col-md-6">
                         <div class="white p-5 r-5">
                             <div class="card-title">
-                                <h5>V2Ray日志</h5>
+                                <h5 id="HV2Log">V2Ray Log</h5>
                             </div>
                             <div class="row my-3">
                                  <div class="col-md-12">
@@ -272,12 +250,12 @@
                         <div class="card no-b shadow">
                             <div class="card-body p-4">
                                 <div class="form-group has-icon"><i class="icon-envelope-o"></i>
-                                    <input type="text" id="emailF" class="form-control form-control-lg" placeholder="邮箱">
+                                    <input type="text" id="emailF" class="form-control form-control-lg" placeholder="Email">
                                 </div>
                                 <div class="form-group has-icon"><i class="icon-user-secret"></i>
-                                    <input type="password" id="passwordF" class="form-control form-control-lg" placeholder="密码">
+                                    <input type="password" id="passwordF" class="form-control form-control-lg" placeholder="Password">
                                 </div>
-                                <input type="submit" id="V2Milk-submit" class="btn btn-primary btn-lg btn-block" value="登录">
+                                <input type="submit" id="V2Milk-submit" class="btn btn-primary btn-lg btn-block" value="Login">
                             </div>
                         </div>
                     </div>
@@ -299,7 +277,6 @@
         ipc.send('onClickControl', element, data)
     }
 
-    ipc.send('onClickControl', 'getSavedData', '')
     require('./src/main/renderer')
 </script>
 </body>

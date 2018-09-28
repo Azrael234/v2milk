@@ -9,43 +9,50 @@ const http = require('http');
 var request = require('request');
 var qs = require('querystring'); 
 var PHP = require('./PHP.js')
-const Store = require('electron-store');
-const store = new Store();
-const { isMac, isWin, isLinux, isDev} = require('./env.js')
+const { isMac, isWin, isLinux, isDev, isNoPack} = require('./env.js')
 const LangFile = path.join(path.dirname(__dirname), "lang", "lang.json")
 const LangConfig = JSON.parse(fs.readFileSync(LangFile))
 
 let mainWindow
+let alertWindow
 let v2rayserver
 let ProxyOutput
 let tray
 let PACServer
 
-var isInLimit = false
-var isInProgress = false
-
-const appConfigDir = app.getPath('userData')
-const macToolPath = path.resolve(appConfigDir, 'proxy_conf_helper')
 let __libname = path.dirname(path.dirname(path.dirname(__dirname)))
-if (isDev) {
+if(isDev){
+    __libname = path.dirname(path.dirname(__dirname))
+}
+if(isNoPack){
     __libname = path.dirname(path.dirname(__dirname))
 }
 __static = path.join(__libname, "extra", "static")
 
+const appConfigDir = path.join(app.getPath('appData'), "V2Milk")
+var configPath = path.join(appConfigDir, "set.json")
+var PacFilePath = path.join(appConfigDir, "pac.txt")
+
+var isInLimit = false
 var sockets = []
-const PacPort = "7777"
+var userKey = ""
+var PacPort = "7777"
+var Socks5V2Port = 1081
 var serverLoad = ""
 var serverConnected = ""
+var LangChoose = global.DefaultLang
 
 function init(){
-    Menu.setApplicationMenu(null)
-    createWindow()
-    renderTray()
+    initConfig().then(function(){
+        Menu.setApplicationMenu(null)
+        createWindow()
+        renderTray()
+    })
 }
 
 console.log(getLang("Loading"))
 
-function createWindow () {
+function createWindow() {
     app.dock.show()
 
     if (isDev) {
@@ -81,8 +88,59 @@ function createWindow () {
 	})
 }
 
+function reloadWindow(){
+    if(mainWindow == null){
+        createWindow()
+    }else{
+        mainWindow.close()
+        setTimeout(function(){
+            reopenWindow()
+            updateTray()
+        }, 1000)  
+    }
+}
+
+function reopenWindow() {
+    if(mainWindow == null){
+        createWindow()
+    }else{
+        app.dock.show()
+    }
+}
+
+function editPacAlert(){
+    const options = {
+        type: 'info',
+        title: global.SiteName,
+        message: getLang("PacFileEditAlert"),
+        buttons: [getLang("edit")],
+        defaultId: 0,
+        icon: path.join(__static, 'ico', 'ico.png')
+    }
+    dialog.showMessageBox(options, function(options){
+        if(options == 0){
+            shell.openItem(PacFilePath)
+        }
+    })
+}
+
+ipc.on('information-dialog-selection', function (event, index) {
+    let message = '你选择了 '
+    if (index === 0) message += '是.'
+    else message += '否.'
+    document.getElementById('info-selection').innerHTML = message
+})
+
 function exit(){
     app.exit()
+}
+
+function webContentsSend(event, message, noConsole = false){
+    if(mainWindow != null){
+        mainWindow.webContents.send(event, message)
+    }else if(!noConsole){
+        console.log(`No Window: ${event} | ${message}`)
+    }
 }
 
 app.on('ready', init)
@@ -91,10 +149,12 @@ app.on('window-all-closed', () => {
 })
 
 app.on('quit', function () {
+    closeServer()
 })
 
 dialog.showErrorBox = (title, content) => {
     console.log(`${title}\n${content}`)
+    //dialog.showErrorBox(title, content)
 }
 
 ipc.on('onClickControl',function(event, element, data) {
@@ -140,18 +200,36 @@ ipc.on('onClickControl',function(event, element, data) {
 		case "onV2RayStopServers":
             closeServer()
             break
+        case "quit":
+            userKey = ""
+            serverLoad = ""
+            closeServer()
+            reloadWindow()
+            break
+        case "getLangChoose":
+            event.sender.send("systemEditLang", LangChoose)
+            break
+        case "onV2RayrebootPACServer":
+            if(PACServer != null){
+                rebootPACServer("PAC")
+            }
+            break
+        case "editPac":
+            editPacAlert()
+            break
         default:
-			mainWindow.webContents.send(getLang("IllegalAccess"))
+			webContentsSend("V2Ray-log", getLang("IllegalAccess"))
 			break
 	}
 })
 
 function cleanLog(){
-    mainWindow.webContents.send("V2Ray-LogClean","")
+    webContentsSend("V2Ray-LogClean", "")
 }
 
+//Login Functions
 function sendRequest(event, content, upa, nolog = false){
-	request(global.APIPath + "?" + content, function (error, response, body) {
+	request(`${global.APIPath}?${content}`, function (error, response, body) {
 		if (!error && response.statusCode == 200) {
 			processData(event, body, upa, nolog)
 		}
@@ -198,9 +276,9 @@ function processData(event, data, upa, nolog = false){
         			break
         	}
         }
-    }catch(ex){
+    }catch(error){
         if(!nolog){
-            event.sender.send("onMainCall", 'Error:' + ex)
+            event.sender.send("onMainCall", `Error: ${error}`)
         }
     }
 }
@@ -213,8 +291,8 @@ function getServersList(data){
         for (var i = 0; i < packages.length; i++) {
             servers.push(getServerPackage(packages[i]))
         }
-    }catch(ex){
-        console.log('getServersList Error: ' + ex)
+    }catch(error){
+        console.log(`getServersList Error: ${error}`)
     }
     return servers
 }
@@ -229,95 +307,118 @@ function getServerPackage(mpackage){
             var nodename = mpackage.nodes[i].split("|")
             server.sname = nodename[0]
             server.uuid = mpackage.uuid
-            server.info = mpackage.uuid + "|" + mpackage.nodes[i]
+            server.info = `${mpackage.uuid}|${mpackage.nodes[i]}`
             serverPackage.servers.push(server)
         }
-        console.log('Loaded ' + mpackage.nodes.length + ' Servers for ' + mpackage.package)
+        console.log(`Loaded ${mpackage.nodes.length} Servers for ${mpackage.package}`)
     }
     return serverPackage
 }
 
 function saveData(upa){
     var data = PHP.uc_authcode(upa, "ENCODE", global.ucKey)
-    store.set('UserKey', data)
+    userKey = data
+    saveUpdateConfig()
 }
 
 function getSavedData(){
-    var UserKey = store.get('UserKey')
-    if(typeof(UserKey) != "undefined"){
+    if(typeof(userKey) != "undefined" && userKey != ""){
         try{
-            var data = PHP.uc_authcode(UserKey, "DECODE", global.ucKey)
+            var data = PHP.uc_authcode(userKey, "DECODE", global.ucKey)
             var dataa = JSON.parse(data);
             if(dataa.email !== null && dataa.password !== null){
                 var saveAction = {
                     "actions" : [
-                        "emailF|value|" + dataa.email,
-                        "passwordF|value|" + dataa.password
+                        `emailF|value|${dataa.email}`,
+                        `passwordF|value|${dataa.password}`
                     ]
                 }
-                mainWindow.webContents.send("onMainFrameChange", JSON.stringify(saveAction))
-                mainWindow.webContents.send("savedDataLogin")
-                mainWindow.webContents.send("V2Ray-log", getLang("ParseSavedDataSuccessed"))
+                webContentsSend("onMainFrameChange", JSON.stringify(saveAction))
+                webContentsSend("savedDataLogin")
+                webContentsSend("V2Ray-log", getLang("ParseSavedDataSuccessed"))
             }
         }catch(error){
-            console.log("V2Ray-log", getLang("ParseSavedDataFailed", ["%error|" + error]))
+            console.log("V2Ray-log", getLang("ParseSavedDataFailed", [`%error|${error}`]))
         }
     }
 }
 
-function startPacHttpServer(){
-    return new Promise(function(resolve, reject) {
-        mainWindow.webContents.send("V2Ray-log", getLang("PacServerStarting"))
-    	PACServer = http.createServer()
-
-    	PACServer.on('request', (request, response) => {
-    	    if (request.url == '/pac') {
-    			var pacfile = fs.readFileSync(path.join(__libname, 'extra/v2ray-core/pac/pac.txt'))
-    			response.writeHead(200,{"content-type":"text/plain","connection":"close","transfer-encoding":"identity"});
-    			response.end(pacfile);
-    		}else{
-    			response.writeHead(404)
-    			response.end("404")
-    		}
-    	})
-
-    	PACServer.listen(parseInt(PacPort), '127.0.0.1');
-
-    	PACServer.on('listening', () => {
-    		mainWindow.webContents.send("V2Ray-log", getLang("PacServerStarted"))
-            return resolve()
-    	})
-
-    	PACServer.on("connection",function(socket){
-    		sockets.push(socket);
-    		socket.once("close",function(){
-    			sockets.splice(sockets.indexOf(socket),1);
-    		});
-    	})
-
-    	PACServer.on('error', (data) => {
-    		mainWindow.webContents.send("V2Ray-log", getLang("PacServerStartFailed", [`%error|${data}`]))
-            return reject(data)
-    	})
+//Config Loading && Saving
+function initConfig(){
+    return new Promise(function(resolve) {
+        fs.readFile(configPath, {encoding:"utf-8"}, function (err, str) {
+            var sysconfig = resetConfig()
+            if(err){
+                console.log(getLang("SystemConfigReadFailed", [`%error|${err}`]))
+                saveSysConfig(sysconfig).then(function(){
+                    console.log(getLang("SystemConfigSaved"))
+                }).catch(error=>{
+                    console.log(getLang("SystemConfigSavedFailed", [`%error|${error}`]))
+                })
+            }else{
+                try{
+                    sysconfig = JSON.parse(str)
+                }catch(err){
+                    webContentsSend("V2Ray-log", getLang("SystemConfigParseError"))
+                    saveSysConfig(sysconfig).then(function(){
+                        console.log(getLang("SystemConfigSaved"))
+                    }).catch(error=>{
+                        console.log(getLang("SystemConfigSavedFailed", [`%error|${error}`]))
+                    })
+                }
+            }
+            PacPort = sysconfig.PacPort.toString()
+            Socks5V2Port = parseInt(sysconfig.Socks5V2Port)
+            userKey = sysconfig.userKey.toString()
+            LangChoose = sysconfig.LangChoose
+            console.log(getLang("SystemConfigDone", [`%lang|${LangChoose}`, `%pacPort|${PacPort}`, `%socks5Port|${Socks5V2Port}`]))
+        })
+        fs.readFile(PacFilePath, {encoding:"utf-8"}, function (err, str) {
+            if(err || str == ""){
+                var pacfile = fs.readFileSync(path.join(__libname, 'extra/v2ray-core/pac/pac.txt'))
+                fs.writeFileSync(PacFilePath, pacfile ,{flag:'w',encoding:'utf-8',mode:'0666'})
+                console.log(getLang("PacFileLoadDefault"))
+            }else{
+                console.log(getLang("PacFileLoaded"))
+            }
+        })
+        return resolve()
     })
 }
 
-function closePacHttpServer(){
-    return new Promise((resolve) => {
-        sockets.forEach(function(socket){
-            socket.destroy()
-        })
-        if(PACServer != null){
-            PACServer.close(function(){
-                mainWindow.webContents.send("V2Ray-log", getLang("PacServerClosed"))
-            }).then(function(){
-                return resolve(true)
-            })
-        }else{
-            return resolve(true)
-        }
+function resetConfig(){
+    var defaultConfig = {
+        "LangChoose" : global.DefaultLang,
+        "userKey" : "",
+        "PacPort" : 7777,
+        "Socks5V2Port" : 1081
+    }
+    return defaultConfig
+}
+
+function saveUpdateConfig(){
+    var newConfig = {
+        "LangChoose" : LangChoose.toString(),
+        "userKey" : userKey.toString(),
+        "PacPort" : parseInt(PacPort),
+        "Socks5V2Port" : parseInt(Socks5V2Port)
+    }
+    saveSysConfig(newConfig).then(function(){
+        webContentsSend("V2Ray-log", getLang("SystemConfigUpdated"))
     }).catch(error=>{
-        return error
+        webContentsSend("V2Ray-log", getLang("SystemConfigSavedFailed", [`%error|${error}`]))
+    })
+}
+
+function saveSysConfig(config){
+    return new Promise((resolve, reject) => {
+        fs.writeFile(configPath, JSON.stringify(config, null, 4) ,{flag:'w',encoding:'utf-8',mode:'0666'}, function(err){
+            if(err){
+                return reject(err)
+            }else{
+                return resolve(true)
+            }
+        })
     })
 }
 
@@ -333,7 +434,7 @@ function saveConfig(node){
         },
         "inbound" : {
             "listen" : "127.0.0.1",
-            "port" : 1081,
+            "port" : Socks5V2Port,
             "protocol" : "socks",
             "settings" : {
               "auth" : "noauth",
@@ -495,7 +596,7 @@ function saveConfig(node){
       }
     }
     return new Promise((resolve, reject) => {
-        fs.writeFile(app.getPath('appData') + "/V2Milk/config.json",JSON.stringify(jsonarr, null, 4) ,{flag:'w',encoding:'utf-8',mode:'0666'}, function(err){
+        fs.writeFile(path.join(appConfigDir, "config.json"), JSON.stringify(jsonarr, null, 4) ,{flag:'w',encoding:'utf-8',mode:'0666'}, function(err){
             if(err){
                 return reject(err)
             }else{
@@ -505,11 +606,69 @@ function saveConfig(node){
     })
 }
 
-function startV2RayProcess(arg){
-    mainWindow.webContents.send("V2Ray-log", getLang("V2RayStarting"))
+//PAC Server start && close
+function startPacHttpServer(){
+    return new Promise(function(resolve, reject) {
+        webContentsSend("V2Ray-log", getLang("PacServerStarting"))
+    	PACServer = http.createServer()
+
+    	PACServer.on('request', (request, response) => {
+    	    if (request.url == '/pac') {
+    			var pacfile = fs.readFileSync(PacFilePath)
+    			response.writeHead(200,{"content-type":"text/plain","connection":"close","transfer-encoding":"identity"});
+    			response.end(pacfile);
+    		}else{
+    			response.writeHead(404)
+    			response.end("404")
+    		}
+    	})
+
+    	PACServer.listen(parseInt(PacPort), '127.0.0.1');
+
+    	PACServer.on('listening', () => {
+    		webContentsSend("V2Ray-log", getLang("PacServerStarted"))
+            return resolve()
+    	})
+
+    	PACServer.on("connection",function(socket){
+    		sockets.push(socket);
+    		socket.once("close",function(){
+    			sockets.splice(sockets.indexOf(socket),1);
+    		});
+    	})
+
+    	PACServer.on('error', (data) => {
+    		webContentsSend("V2Ray-log", getLang("PacServerStartFailed", [`%error|${data}`]))
+            return reject(data)
+    	})
+    })
+}
+
+function closePacHttpServer(){
+    return new Promise((resolve) => {
+        sockets.forEach(function(socket){
+            socket.destroy()
+        })
+        if(PACServer != null){
+            PACServer.close(function(){
+                webContentsSend("V2Ray-log", getLang("PacServerClosed"))
+            }).then(function(){
+                return resolve(true)
+            })
+        }else{
+            return resolve(true)
+        }
+    }).catch(error=>{
+        return error
+    })
+}
+
+//V2Ray Procress Load
+function startV2RayProcess(arg, node){
+    webContentsSend("V2Ray-log", getLang("V2RayStarting"))
     setProxy(arg)
     if(isMac){
-        v2rayserver = cps.execFile(path.join(__libname, 'extra/v2ray-core/Mac/v2ray'), ['-config', app.getPath('appData') + "/V2Milk/config.json"])
+        v2rayserver = cps.execFile(path.join(__libname, 'extra/v2ray-core/Mac/v2ray'), ['-config', path.join(appConfigDir, "config.json")])
     }else if(isLinux){
 
     }else if(isWin){
@@ -517,38 +676,38 @@ function startV2RayProcess(arg){
     }
     v2rayserver.stdout.on('data', (data) => {
         if(data.indexOf("Failed to start App|Proxyman|Inbound: failed to listen TCP on") > -1 ){
-            mainWindow.webContents.send("V2Ray-status", data)
-            mainWindow.webContents.send("V2Ray-jsonStatus", JSON.stringify({"status":"error","message":getLang("V2RayPortInUse")}))
+            webContentsSend("V2Ray-status", data)
+            webContentsSend("V2Ray-jsonStatus", JSON.stringify({"status":"error","message":getLang("V2RayPortInUse", [`%port|${Socks5V2Port}`])}))
         }else if(data.indexOf("failed to load config:") > -1 ){
-            mainWindow.webContents.send("V2Ray-status", data)
-            mainWindow.webContents.send("V2Ray-jsonStatus", JSON.stringify({"status":"error","message":getLang("V2RayConfigFileError")}))
+            webContentsSend("V2Ray-status", data)
+            webContentsSend("V2Ray-jsonStatus", JSON.stringify({"status":"error","message":getLang("V2RayConfigFileError")}))
         }else if(data.indexOf("Core: V2Ray") > -1 ){
-            mainWindow.webContents.send("V2Ray-status", data)
-            mainWindow.webContents.send("V2Ray-log", getLang("V2RayStarted"))
+            webContentsSend("V2Ray-status", data)
+            webContentsSend("V2Ray-log", getLang("V2RayStarted"))
+            updateConnectedRoute(node, arg)
         }else{
-            mainWindow.webContents.send("V2Ray-status", data)
+            webContentsSend("V2Ray-status", data)
         }
     })
 
     v2rayserver.stderr.on('data', (data) => {
-        mainWindow.webContents.send("V2Ray-status", data)
+        webContentsSend("V2Ray-status", data)
     })
 
     v2rayserver.on('close', (code) => {
         switch(code){
             case null:
-                mainWindow.webContents.send("V2Ray-jsonStatus", JSON.stringify({'status':'success','message':getLang("V2RayClosed")}))
+                webContentsSend("V2Ray-jsonStatus", JSON.stringify({'status':'success','message':getLang("V2RayClosed")}))
                 break
             case "0":
-                mainWindow.webContents.send("V2Ray-jsonStatus", JSON.stringify({'status':'success','message':getLang("V2RayClosed")}))
+                webContentsSend("V2Ray-jsonStatus", JSON.stringify({'status':'success','message':getLang("V2RayClosed")}))
                 break
         }
     })
 
     v2rayserver.on('exit', (code) => {
-        mainWindow.webContents.send("V2Ray-log", getLang("V2RayExitCode", [`%code|${code}`]))
+        webContentsSend("V2Ray-log", getLang("V2RayExitCode", [`%code|${code}`]))
         if(isMac || isLinux){
-            console.log("Mac&Linux")
             //cps.exec("kill -9 $(ps -ef | grep v2ray | grep -v grep | awk '{print $2}')")
         }else if(isWin){
 
@@ -567,43 +726,74 @@ function killV2RayProcess(){
     })
 }
 
-function setProxy(mode){
+function updateConnectedRoute(node, mode = ""){
     switch(mode){
         case "PAC":
-            var urll = "http://127.0.0.1:" + parseInt(PacPort) + "/pac"
-            cps.exec('networksetup -setautoproxyurl Wi-Fi ' + urll + '&&networksetup -setautoproxyurl Ethernet ' + urll + '&&networksetup -setautoproxyurl "Thunderbolt Bridge" ' + urll + '&&networksetup -setautoproxystate Wi-Fi on', {encoding: "utf-8"})
+            mode = "sitemap" 
             break
         case "GLOBAL":
-            cps.exec('networksetup -setsocksfirewallproxy Wi-Fi 127.0.0.1 1081&&networksetup -setsocksfirewallproxy Ethernet 127.0.0.1 1081&&networksetup -setsocksfirewallproxy "Thunderbolt Bridge" 127.0.0.1 1081&&networksetup -setsocksfirewallproxystate Wi-Fi on', {encoding: "utf-8"})
+            mode = "globe"
             break
-        case "OFF":
-            cps.exec('networksetup -setsocksfirewallproxystate Wi-Fi off&&networksetup -setsocksfirewallproxystate Ethernet off&&networksetup -setsocksfirewallproxystate "Thunderbolt Bridge" off', {encoding: "utf-8"})
-            cps.exec('networksetup -setautoproxystate Wi-Fi off&&networksetup -setautoproxystate Ethernet off&&networksetup -setautoproxystate "Thunderbolt Bridge" off', {encoding: "utf-8"})
+        default:
+            mode = "cloud-remove2"
             break
     }
+    var node = node.split("|")
+    var updateAction = {
+        "actions" : [
+            `RouteLinked|innerHTML|${node[1]}`,
+            `RouteLinkedIcon|set|icon icon-${mode} s-48`
+        ]
+    }
+    webContentsSend("onMainFrameChange", JSON.stringify(updateAction), true)
 }
 
+//Proxy Set
+function setProxy(mode){
+    if(isMac){
+        switch(mode){
+            case "PAC":
+                var urll = `http://127.0.0.1:${parseInt(PacPort)}/pac`
+                cps.exec('networksetup -setautoproxyurl Wi-Fi ' + urll + '&&networksetup -setautoproxyurl Ethernet ' + urll + '&&networksetup -setautoproxyurl "Thunderbolt Bridge" ' + urll + '&&networksetup -setautoproxystate Wi-Fi on', {encoding: "utf-8"})
+                break
+            case "GLOBAL":
+                cps.exec(`networksetup -setsocksfirewallproxy Wi-Fi 127.0.0.1 1081&&networksetup -setsocksfirewallproxy Ethernet 127.0.0.1 ${Socks5V2Port}&&networksetup -setsocksfirewallproxy "Thunderbolt Bridge" 127.0.0.1 ${Socks5V2Port}&&networksetup -setsocksfirewallproxystate Wi-Fi on`, {encoding: "utf-8"})
+                break
+            case "OFF":
+                cps.exec('networksetup -setsocksfirewallproxystate Wi-Fi off&&networksetup -setsocksfirewallproxystate Ethernet off&&networksetup -setsocksfirewallproxystate "Thunderbolt Bridge" off', {encoding: "utf-8"})
+                cps.exec('networksetup -setautoproxystate Wi-Fi off&&networksetup -setautoproxystate Ethernet off&&networksetup -setautoproxystate "Thunderbolt Bridge" off', {encoding: "utf-8"})
+                break
+        }
+    }else if(isLinux){
+
+    }else if(isWin){
+
+    } 
+}
+
+//Server Functions
 function rebootServer(mode, node){
     if(isInLimit){
-        mainWindow.webContents.send("V2Ray-log", getLang("ActionTooFast"))
+        webContentsSend("V2Ray-log", getLang("ActionTooFast"))
     }else{
         isInLimit = true
-        mainWindow.webContents.send("V2Ray-log", getLang("LoadingMode", [`%mode|${mode}`]))
-        rebootPACServer().then(function(){
+        webContentsSend("V2Ray-log", getLang("LoadingMode", [`%mode|${mode}`]))
+        rebootPACServer(mode).then(function(){
             cleanLog()
             saveConfig(node).then(function(){
-                mainWindow.webContents.send("V2Ray-log", getLang("ConfigWroteSuccess"))
+                webContentsSend("V2Ray-log", getLang("ConfigWroteSuccess"))
                 serverConnected = node.replace(/[\r\n]/g, "")
                 killV2RayProcess().then(function(){
-                    startV2RayProcess(mode)
+                    updateConnectedRoute(`|${getLang("None")}`)
+                    startV2RayProcess(mode, node)
                     updateTray()
                 }).catch(error=>{
                     serverConnected = null
-                    mainWindow.webContents.send("V2Ray-log", getLang("ConfigWroteFailed", [`%error|${error}`]))
+                    webContentsSend("V2Ray-log", getLang("ConfigWroteFailed", [`%error|${error}`]))
                 })
             })
         }).catch(error=>{
-            mainWindow.webContents.send("V2Ray-log", getLang("UnknownErrorDetailed", [`%error|${error}`]))
+            webContentsSend("V2Ray-log", getLang("UnknownErrorDetailed", [`%error|${error}`]))
         })
     }
     setTimeout(function(){
@@ -611,17 +801,26 @@ function rebootServer(mode, node){
     }, 2000)
 }
 
-function rebootPACServer(){
-    return new Promise((resolve) => {
-        closePacHttpServer().then(function(){
-            PACServer = null
-            startPacHttpServer().then(function(){
+function rebootPACServer(mode){
+    if(mode != "PAC"){
+        return new Promise((resolve) => {
+            closePacHttpServer().then(function(){
+                PACServer = null
                 return resolve(true)
             })
         })
-    }).catch(error=>{
-        return error
-    })
+    }else{
+        return new Promise((resolve) => {
+            closePacHttpServer().then(function(){
+                PACServer = null
+                startPacHttpServer().then(function(){
+                    return resolve(true)
+                })
+            })
+        }).catch(error=>{
+            return error
+        })
+    }
 }
 
 function closeServer(){
@@ -629,22 +828,28 @@ function closeServer(){
         PACServer = null
         killV2RayProcess().then(function(){
             updateTray()
+            updateConnectedRoute(`|${getLang("None")}`)
             serverConnected = null
-            mainWindow.webContents.send("V2Ray-log", getLang("MainServerClosed"))
+            webContentsSend("V2Ray-log", getLang("MainServerClosed"))
         })
     }).catch(error=>{
         serverConnected = null
-        mainWindow.webContents.send("V2Ray-log", getLang("PacServerCloseFailed", [`%error|${error}`]))
+        webContentsSend("V2Ray-log", getLang("PacServerCloseFailed", [`%error|${error}`]))
     })
 }
 
+//Tray Functions
 function generateMenus() {
     let menus = [
         { 
             label: getLang("OpenMainWindow"), 
             click: function() {
-                createWindow()
+                reopenWindow()
             } 
+        },
+        { 
+            label: getLang("ChooseLanguage"), 
+            submenu: [] 
         },
         { 
             label: getLang("ChooseServer"), 
@@ -658,8 +863,12 @@ function generateMenus() {
         }
     ]
     var menuTray = getTrayServerMenu()
+    var langTray = getAvailableLang()
+    for (var i = langTray.length - 1; i >= 0; i--) {
+        menus[1].submenu.push(langTray[i])
+    }
     for (var i = menuTray.length - 1; i >= 0; i--) {
-        menus[1].submenu.push(menuTray[i])
+        menus[2].submenu.push(menuTray[i])
     }
     return menus
 }
@@ -744,8 +953,9 @@ function renderTray() {
     tray.on((isMac || isWin) ? 'double-click' : 'click', e => { console.log('clicked') })
 }
 
+//System Lang Functions
 function getLang(lang, msg = []){
-    var langf = LangConfig[global.DefaultLang][0][lang]
+    var langf = LangConfig[LangChoose][0][lang]
     if(typeof(langf) == "undefined"){
         langf = lang
     }else{
@@ -760,4 +970,29 @@ function getLang(lang, msg = []){
 function replaceAll(str, FindText, RepText) {
     regExp = new RegExp(FindText, "g")
     return str.replace(regExp, RepText)
+}
+
+function getAvailableLang(){
+    var menu = []
+    for(var i in LangConfig){
+        if(i == LangChoose){ checked = true }else{ checked = false }
+        var lang = {
+            label: LangConfig[i][0]['LangName'],
+            type: 'checkbox',
+            checked: checked,
+            tlang: i,
+            click: function(data){
+                editLang(data.tlang)
+            }
+        }
+        menu.push(lang)
+    }
+    return menu
+}
+
+function editLang(tlang){
+    LangChoose = tlang
+    saveUpdateConfig()
+    closeServer()
+    reloadWindow()
 }

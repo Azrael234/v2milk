@@ -6,12 +6,13 @@ const isWin = platform === 'win32'
 const isMac = platform === 'darwin'
 const isLinux = platform === 'linux'
 
-//const isDev = process.env.NODE_ENV !== 'production'
-const isDev = false
+const isDev = process.env.NODE_ENV == 'Dev'
+const isNoPack = process.env.NODE_ENV == 'noPack'
 
 module.exports = {
 	isWin,
 	isMac,
 	isLinux,
-	isDev
+	isDev,
+	isNoPack
 }

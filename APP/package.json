@@ -1,10 +1,10 @@
 {
   "name": "V2Milk",
-  "version": "1.0.0",
+  "version": "0.0.2",
   "description": "Very 2 Milk",
   "main": "src/main/main.js",
   "scripts": {
-    "start": "export NODE_ENV=production && electron .",
+    "start": "export NODE_ENV=noPack && electron .",
     "dev": "export NODE_ENV=Dev && electron .",
     "packageWin": "electron-packager . V2Milk --platform=win32 --win32metadata.CompanyName=V2Milk --win32metadata.ProductName=V2Milk --out V2MilkAPP --arch=x64 --app-copyright=V2Milk.com --app-version=0.1.0 --electron-version=2.0.8 --overwrite --asar --ignore=extra/ --icon V2Milk.ico --extra-resource=extra/",
     "packageMac": "electron-packager . V2Milk --darwin --out V2MilkAPP --arch=x64 --app-version=0.0.1 --electron-version=2.0.8 --app-copyright='Copyright © 2018 V2Milk' --app-bundle-id=V2Milk --overwrite --asar --ignore=extra/ --icon V2Milk.icns --extra-resource=extra/"
