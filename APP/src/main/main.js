@@ -346,6 +346,10 @@ function getSavedData(){
 //Config Loading && Saving
 function initConfig(){
     return new Promise(function(resolve) {
+        if (!fs.existsSync(appConfigDir)){
+            fs.mkdirSync(appConfigDir)
+            console.log(getLang("SystemFolderCreated"))
+        }
         fs.readFile(configPath, {encoding:"utf-8"}, function (err, str) {
             var sysconfig = resetConfig()
             if(err){
