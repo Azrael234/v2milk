@@ -6,7 +6,7 @@ V2Ray 跨平台定制客户端
 # 编写进度
 * ~~MacOS部分~~(已完成)
 * ~Windows部分~(已完成)
-* Linux部分
+* Linux部分(已完成但尚未测试)
 * 自定义节点
 * 二维码显示
 * ~~PAC重启~~(已完成)
@@ -53,8 +53,8 @@ npm install
 # 编译方式
 * 将最新的 [V2Ray-Core](https://github.com/v2ray/v2ray-core/releases) 放入 APP/extra/v2ray-core 的对应目录下
 ![](https://raw.githubusercontent.com/Zzm317/V2Milk/master/images/6.jpg)
-* Mac ```npm run packageMac```
-* Win ```npm run packageWin```
+* MacOS ```npm run packageMac```
+* Windows ```npm run packageWin```
 
 # 其他
 * ETH钱包 0xaD8ABb15e4B8B58f5FbEE9CAb42096c1d640C234

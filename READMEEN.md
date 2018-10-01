@@ -49,8 +49,8 @@ npm install
 # Compile
 * Put the [V2Ray-Core](https://github.com/v2ray/v2ray-core/releases) to APP/extra/v2ray-core
 ![](https://raw.githubusercontent.com/Zzm317/V2Milk/master/images/6.jpg)
-* For Mac ```npm run packageMac```
-* For Win ```npm run packageWin```
+* For MacOS ```npm run packageMac```
+* For Windows ```npm run packageWin```
 
 # Others
 * ETH Wallet 0xaD8ABb15e4B8B58f5FbEE9CAb42096c1d640C234
