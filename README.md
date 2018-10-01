@@ -52,6 +52,7 @@ npm install
 
 # 编译方式
 * 将最新的 [V2Ray-Core](https://github.com/v2ray/v2ray-core/releases) 放入 APP/extra/v2ray-core 的对应目录下
+![](https://raw.githubusercontent.com/Zzm317/V2Milk/master/images/6.jpg)
 * Mac ```npm run packageMac```
 * Win ```npm run packageWin```
 
