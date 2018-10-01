@@ -1,7 +1,7 @@
 # V2Milk
 V2Ray Cross-Platform Client
 
-## Readme in Chinese: [Readme.md](https://github.com/Zzm317/V2Milk/blob/master/README.md)
+### 中文: [Readme.md](https://github.com/Zzm317/V2Milk/blob/master/README.md)
 
 # In Progress
 * ~~V2Ray for MacOS~~(Done)
