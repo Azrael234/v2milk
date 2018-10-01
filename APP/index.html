@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
+    <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'">
     <title>V2Milk</title>
     <!-- CSS -->
     <link rel="stylesheet" href="assets/css/app.css">
@@ -112,7 +113,7 @@
             </div>
         </div>
     </header>
-    <div class="container-fluid relative animatedParent animateOnce">
+    <div class="container-fluid relative animatedParent animateOnce" style="top:10px;">
         <div class="tab-content pb-3" id="v-pills-tabContent">
             <div class="tab-pane animated fadeInUpShort show active" id="v-pills-1">
                 <div class="row my-3">
@@ -194,6 +195,33 @@
             </div>
             <div class="tab-pane animated fadeInUpShort go" id="v-pills-2">
                 <div class="row my-3">
+                    <div class="col-md-12">
+                        <div class="white p-5 r-5">
+                            <div class="card-title">
+                                <h5 id="HCSelectRoute">Choose Route</h5>
+                                <a class="btn-fab fab-right btn-primary" style="top:30px;right:50px;">
+                                    <i class="icon icon-plus" id="AddCustomRoute"></i>
+                                </a>
+                            </div>
+                            <div class="row my-3">
+                                 <div class="col-md-12">
+                                    <div class="form-row">
+                                        <div class="form-group col-md-12">
+                                            <table class="table table-striped">
+                                                <thead>
+                                                        <th id="HCRoute">Route</th>
+                                                        <th id="HCAction">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="cRoutePackages">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                 </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="tab-pane animated fadeInUpShort go" id="v-pills-3">
@@ -219,6 +247,9 @@
                                     <div class="form-row">
                                         <div class="form-group col-md-12">
                                             <div id="V2log" style="overflow-y:auto;overflow-x:auto;height:300px;margin-top:20px;"></div>
+                                            <a class="btn-fab fab-right btn-primary" style="bottom:-40px;right:-5px;">
+                                                <i class="icon icon-arrow_downward" id="V2LogToBottom"></i>
+                                            </a>
                                         </div>
                                     </div>
                                  </div>
@@ -236,6 +267,9 @@
                                     <div class="form-row">
                                         <div class="form-group col-md-12">
                                             <div id="V2Status" style="overflow-y:auto;overflow-x:auto;height:300px;margin-top:20px;"></div>
+                                            <a class="btn-fab fab-right btn-primary" style="bottom:-40px;right:-5px;">
+                                                <i class="icon icon-arrow_downward" id="V2StatusToBottom"></i>
+                                            </a>
                                         </div>
                                     </div>
                                  </div>
@@ -257,6 +291,15 @@
                                 </div>
                                 <input type="submit" id="V2Milk-submit" class="btn btn-primary btn-lg btn-block" value="Login">
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane animated fadeInUpShort go" id="v-pills-6">
+                <div class="row">
+                    <div class="col-md-12 mx-md-auto m-5">
+                        <div class="card no-b shadow">
+                            
                         </div>
                     </div>
                 </div>

@@ -1,13 +1,15 @@
 require('./config.js')
 const Promise = require('bluebird')
 const {Menu, Tray, app, BrowserWindow, shell, nativeImage, dialog} = require('electron')
-const ipc = require('electron').ipcMain;
-const cps = require('child_process');
-const fs = require("fs");
-const path = require('path');
-const http = require('http');
-var request = require('request');
-var qs = require('querystring'); 
+const electron = require('electron')
+const ipc = require('electron').ipcMain
+const cps = require('child_process')
+const fs = require("fs")
+const path = require('path')
+const http = require('http')
+var request = require('request')
+var qs = require('querystring')
+var sudo = require('sudo-prompt')
 var PHP = require('./PHP.js')
 const { isMac, isWin, isLinux, isDev, isNoPack} = require('./env.js')
 const LangFile = path.join(path.dirname(__dirname), "lang", "lang.json")
@@ -15,7 +17,7 @@ const LangConfig = JSON.parse(fs.readFileSync(LangFile))
 
 let mainWindow
 let alertWindow
-let v2rayserver
+let V2RayServer
 let ProxyOutput
 let tray
 let PACServer
@@ -23,15 +25,26 @@ let PACServer
 let __libname = path.dirname(path.dirname(path.dirname(__dirname)))
 if(isDev){
     __libname = path.dirname(path.dirname(__dirname))
+}else if(isDev && isWin){
+	__libname = __dirname
 }
 if(isNoPack){
     __libname = path.dirname(path.dirname(__dirname))
 }
+
 __static = path.join(__libname, "extra", "static")
 
 const appConfigDir = path.join(app.getPath('appData'), "V2Milk")
+const userConfigDir = app.getPath('userData')
 var configPath = path.join(appConfigDir, "set.json")
 var PacFilePath = path.join(appConfigDir, "pac.txt")
+var helperPath = path.join(__libname, 'extra/lib/proxy_conf_helper')
+var macToolPath = path.resolve(userConfigDir, 'proxy_conf_helper')
+
+let winToolPath
+if (isWin) {
+    winToolPath = path.join(__libname, '/extra/lib/sysproxy.exe')
+}
 
 var isInLimit = false
 var sockets = []
@@ -40,20 +53,67 @@ var PacPort = "7777"
 var Socks5V2Port = 1081
 var serverLoad = ""
 var serverConnected = ""
+var serverMode = ""
 var LangChoose = global.DefaultLang
+var isModeBeforeSleep
+var isRouteBeforeSleep
+var noHelper = null
+var closeFlag = false
 
 function init(){
-    initConfig().then(function(){
-        Menu.setApplicationMenu(null)
-        createWindow()
-        renderTray()
+    initProxyHelper().then(function(){
+        initConfig().then(function(){
+            Menu.setApplicationMenu(null)
+            createWindow()
+            renderTray()
+        }).catch(function(error){
+			console.log(error)
+			noHelper = 1
+			exit()
+		})
+        initPowerMonitor()
+    }).catch(function(error){
+		console.log(error)
+        noHelper = 1
+        exit()
     })
 }
 
 console.log(getLang("Loading"))
 
+//power monitor
+function initPowerMonitor(){
+    electron.powerMonitor.on('resume', () => {
+        webContentsSend("V2Ray-log", getLang("SystemGoingToResume"))
+        if(isModeBeforeSleep != "OFF" && isModeBeforeSleep != null && typeof(isModeBeforeSleep) != "undefined"){
+            rebootServer(isModeBeforeSleep, isRouteBeforeSleep)
+        }
+        isModeBeforeSleep = null
+        isRouteBeforeSleep = null
+    })
+    electron.powerMonitor.on('suspend', () => {
+        webContentsSend("V2Ray-log", getLang("SystemGoingToSleep"))
+        isRouteBeforeSleep = serverConnected
+        if(PACServer != null && V2RayServer != null){
+            isModeBeforeSleep = "PAC"
+        }else if(V2RayServer != null){
+            isModeBeforeSleep = "GLOBAL"
+        }else{
+            isModeBeforeSleep = "OFF"
+        }
+        closeServer()
+    })
+    electron.powerMonitor.on('shutdown', () => {
+        closeServer()
+        app.quit()
+    })
+}
+
+//main window function
 function createWindow() {
-    app.dock.show()
+	if(isMac){
+		app.dock.show()
+	}
 
     if (isDev) {
         mainWindow = new BrowserWindow(
@@ -71,7 +131,7 @@ function createWindow() {
     }else{
         mainWindow = new BrowserWindow(
             {
-                width: 900,
+                width: 1000,
                 height: 650,
                 resizable: false,
                 maximizable: false,
@@ -84,7 +144,9 @@ function createWindow() {
 
 	mainWindow.on('closed', function () {
         mainWindow = null
-        app.dock.hide()
+		if(isMac){
+			app.dock.hide()
+		}
 	})
 }
 
@@ -104,12 +166,15 @@ function reopenWindow() {
     if(mainWindow == null){
         createWindow()
     }else{
-        app.dock.show()
+        mainWindow.show()
+		if(isMac){
+			app.dock.show()
+		}
     }
 }
 
 function editPacAlert(){
-    const options = {
+    var options = {
         type: 'info',
         title: global.SiteName,
         message: getLang("PacFileEditAlert"),
@@ -123,13 +188,6 @@ function editPacAlert(){
         }
     })
 }
-
-ipc.on('information-dialog-selection', function (event, index) {
-    let message = '你选择了 '
-    if (index === 0) message += '是.'
-    else message += '否.'
-    document.getElementById('info-selection').innerHTML = message
-})
 
 function exit(){
     app.exit()
@@ -149,7 +207,9 @@ app.on('window-all-closed', () => {
 })
 
 app.on('quit', function () {
-    closeServer()
+    if(noHelper == null){
+        closeServer()
+    }
 })
 
 dialog.showErrorBox = (title, content) => {
@@ -671,14 +731,15 @@ function closePacHttpServer(){
 function startV2RayProcess(arg, node){
     webContentsSend("V2Ray-log", getLang("V2RayStarting"))
     setProxy(arg)
+    serverMode = arg
     if(isMac){
-        v2rayserver = cps.execFile(path.join(__libname, 'extra/v2ray-core/Mac/v2ray'), ['-config', path.join(appConfigDir, "config.json")])
+        V2RayServer = cps.execFile(path.join(__libname, 'extra/v2ray-core/MacOS/v2ray'), ['-config', path.join(appConfigDir, "config.json")])
     }else if(isLinux){
-
+        //V2RayServer = cps.execFile(path.join(__libname, 'extra/v2ray-core/Linux/v2ray'), ['-config', path.join(appConfigDir, "config.json")])
     }else if(isWin){
-
+        V2RayServer = cps.execFile(path.join(__libname, 'extra/v2ray-core/Windows/v2ray'), ['-config', path.join(appConfigDir, "config.json")])
     }
-    v2rayserver.stdout.on('data', (data) => {
+    V2RayServer.stdout.on('data', (data) => {
         if(data.indexOf("Failed to start App|Proxyman|Inbound: failed to listen TCP on") > -1 ){
             webContentsSend("V2Ray-status", data)
             webContentsSend("V2Ray-jsonStatus", JSON.stringify({"status":"error","message":getLang("V2RayPortInUse", [`%port|${Socks5V2Port}`])}))
@@ -694,36 +755,33 @@ function startV2RayProcess(arg, node){
         }
     })
 
-    v2rayserver.stderr.on('data', (data) => {
+    V2RayServer.stderr.on('data', (data) => {
         webContentsSend("V2Ray-status", data)
     })
 
-    v2rayserver.on('close', (code) => {
-        switch(code){
-            case null:
-                webContentsSend("V2Ray-jsonStatus", JSON.stringify({'status':'success','message':getLang("V2RayClosed")}))
-                break
-            case "0":
-                webContentsSend("V2Ray-jsonStatus", JSON.stringify({'status':'success','message':getLang("V2RayClosed")}))
-                break
+    V2RayServer.on('close', (code) => {
+        webContentsSend("V2Ray-jsonStatus", JSON.stringify({'status':'success','message':getLang("V2RayClosed")}))
+        if(closeFlag == false){
+            webContentsSend("V2Ray-log", getLang("V2RayUnexpectedExit", [`%second|2`]))
+            setTimeout(() => rebootServer(serverMode, serverConnected), 2000)
         }
     })
 
-    v2rayserver.on('exit', (code) => {
+    V2RayServer.on('exit', (code) => {
         webContentsSend("V2Ray-log", getLang("V2RayExitCode", [`%code|${code}`]))
         if(isMac || isLinux){
             //cps.exec("kill -9 $(ps -ef | grep v2ray | grep -v grep | awk '{print $2}')")
         }else if(isWin){
 
         }
-        v2rayserver = null
+        V2RayServer = null
     })
 }
 
 function killV2RayProcess(){
     return new Promise((resolve) => {
         setProxy("OFF")
-        v2rayserver.kill()
+        V2RayServer.kill()
         setTimeout(() => resolve(), 2000)
     }).catch(error=>{
         return error
@@ -753,30 +811,89 @@ function updateConnectedRoute(node, mode = ""){
 }
 
 //Proxy Set
+function initProxyHelper(){
+    return new Promise(function(resolve, reject) {
+		if(isMac){
+			fs.readFile(macToolPath, {encoding:"utf-8"}, function (err, str) {
+				if(err){
+					var command = `cp ${helperPath} "${macToolPath}" && chown root:admin "${macToolPath}" && chmod a+rx "${macToolPath}" && chmod +s "${macToolPath}"`
+					sudo.exec(command, { name: 'V2Milk APP' }, (error, stdout, stderr) => {
+						if (error || stderr) {
+							ProxyHelperAlert(getLang("HelperInstallFailed"), 1)
+							return reject(error)
+						} else {
+							ProxyHelperAlert(getLang("HelperInstallSuccess"), 0)
+							return resolve()
+						}
+					})
+				}else{
+					return resolve()
+				}
+			})
+		}else{
+			return resolve()
+		}
+    })
+}
+
+function ProxyHelperAlert(message, option){
+    var options = {
+        type: 'info',
+        title: global.SiteName,
+        message: message,
+        buttons: [getLang("done")],
+        icon: path.join(__static, 'ico', 'ico.png')
+    }
+    dialog.showMessageBox(options, function(options){
+    })
+}
+
 function setProxy(mode){
+    var pacUrl = `http://127.0.0.1:${parseInt(PacPort)}/pac`
+    var host = "127.0.0.1"
     if(isMac){
+        var nMacToolPath = replaceAll(macToolPath, " ", "\\ ")
         switch(mode){
             case "PAC":
-                var urll = `http://127.0.0.1:${parseInt(PacPort)}/pac`
-                cps.exec('networksetup -setautoproxyurl Wi-Fi ' + urll + '&&networksetup -setautoproxyurl Ethernet ' + urll + '&&networksetup -setautoproxyurl "Thunderbolt Bridge" ' + urll + '&&networksetup -setautoproxystate Wi-Fi on', {encoding: "utf-8"})
+                cps.execSync(`${nMacToolPath} -m auto -u ${pacUrl}`)
                 break
             case "GLOBAL":
-                cps.exec(`networksetup -setsocksfirewallproxy Wi-Fi 127.0.0.1 1081&&networksetup -setsocksfirewallproxy Ethernet 127.0.0.1 ${Socks5V2Port}&&networksetup -setsocksfirewallproxy "Thunderbolt Bridge" 127.0.0.1 ${Socks5V2Port}&&networksetup -setsocksfirewallproxystate Wi-Fi on`, {encoding: "utf-8"})
+                cps.execSync(`${nMacToolPath} -m global -p ${Socks5V2Port}`)
                 break
             case "OFF":
-                cps.exec('networksetup -setsocksfirewallproxystate Wi-Fi off&&networksetup -setsocksfirewallproxystate Ethernet off&&networksetup -setsocksfirewallproxystate "Thunderbolt Bridge" off', {encoding: "utf-8"})
-                cps.exec('networksetup -setautoproxystate Wi-Fi off&&networksetup -setautoproxystate Ethernet off&&networksetup -setautoproxystate "Thunderbolt Bridge" off', {encoding: "utf-8"})
+                cps.execSync(`${nMacToolPath} -m off`)
                 break
         }
     }else if(isLinux){
-
+        switch(mode){
+            case "PAC":
+                cps.execSync(`gsettings set org.gnome.system.proxy mode 'auto' && gsettings set org.gnome.system.proxy autoconfig-url ${pacUrl}`)
+                break
+            case "GLOBAL":
+                cps.execSync(`gsettings set org.gnome.system.proxy mode 'manual' && gsettings set org.gnome.system.proxy.socks host '${host}' && gsettings set org.gnome.system.proxy.socks port ${Socks5V2Port}`)
+                break
+            case "OFF":
+                cps.execSync(`gsettings set org.gnome.system.proxy mode 'none'`)
+                break
+        }
     }else if(isWin){
-
+        switch(mode){
+            case "PAC":
+                cps.execSync(`${winToolPath} pac ${pacUrl}`)
+                break
+            case "GLOBAL":
+                cps.execSync(`${winToolPath} global ${host}:${Socks5V2Port}`)
+                break
+            case "OFF":
+                cps.execSync(`${winToolPath} pac ""`)
+                break
+        }
     } 
 }
 
 //Server Functions
 function rebootServer(mode, node){
+    closeFlag = true
     if(isInLimit){
         webContentsSend("V2Ray-log", getLang("ActionTooFast"))
     }else{
@@ -791,6 +908,7 @@ function rebootServer(mode, node){
                     updateConnectedRoute(`|${getLang("None")}`)
                     startV2RayProcess(mode, node)
                     updateTray()
+                    closeFlag = false
                 }).catch(error=>{
                     serverConnected = null
                     webContentsSend("V2Ray-log", getLang("ConfigWroteFailed", [`%error|${error}`]))
@@ -828,6 +946,7 @@ function rebootPACServer(mode){
 }
 
 function closeServer(){
+    closeFlag = true
     closePacHttpServer().then(function(){
         PACServer = null
         killV2RayProcess().then(function(){
@@ -923,7 +1042,7 @@ function updateTray(){
 }
 
 function getTooltip() {
-    if(v2rayserver == null){
+    if(V2RayServer == null){
         return getLang("ConnectOff")
     }else{
         if(PACServer !== null){
@@ -935,7 +1054,7 @@ function getTooltip() {
 }
 
 function getTrayIcon() {
-    if(v2rayserver == null){
+    if(V2RayServer == null){
         return path.join(__static, 'icons', isMac ? 'disabled@2x.png' : 'disabled.png')
     }else{
         if(PACServer !== null){

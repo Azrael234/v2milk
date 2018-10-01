@@ -10,12 +10,18 @@ const currentWindow = remote.getCurrentWindow();
 const milksubmit = document.getElementById('V2Milk-submit')
 const milkstop = document.getElementById('V2Milk-stopServers')
 const milkreboot = document.getElementById('V2Milk-rebootPACServer')
+const milkv2logdown = document.getElementById('V2LogToBottom')
+const milkv2statusdown = document.getElementById('V2StatusToBottom')
 const btnlog = document.getElementById('V2log')
 const btnstatus = document.getElementById('V2Status')
 const LangFile = path.join(path.dirname(__dirname), "lang", "lang.json")
 const LangConfig = JSON.parse(fs.readFileSync(LangFile))
 var LangChoose = ""
 var PHP = require('./PHP.js')
+
+window.eval = global.eval = function () {
+    throw new Error(`Sorry, this app does not support window.eval().`)
+}
 
 ipc.send("onClickControl", "getLangChoose", "")
 
@@ -35,6 +41,14 @@ ipc.on("systemEditLang", function(event, message) {
             var upa = `{"email":"${uuu}","password":"${ppp}"}`
             ipc.send('onClickControl', 'onlogin', upa)
         }
+    })
+
+    milkv2logdown.addEventListener('click', () => {
+        btnlog.scrollTop = btnlog.scrollHeight
+    })
+
+    milkv2statusdown.addEventListener('click', () => {
+        btnstatus.scrollTop = btnstatus.scrollHeight
     })
 
     milkstop.addEventListener('click', () => {
@@ -167,6 +181,9 @@ function initHtml(){
     document.getElementById('HRoute').innerHTML = getLang("HRoute")
     document.getElementById('HQRCode').innerHTML = getLang("HQRCode")
     document.getElementById('HAction').innerHTML = getLang("HAction")
+    document.getElementById('HCSelectRoute').innerHTML = getLang("HCSelectRoute")
+    document.getElementById('HCRoute').innerHTML = getLang("HCRoute")
+    document.getElementById('HCAction').innerHTML = getLang("HCAction")
     document.getElementById('HRoutes').innerHTML = `<i class="icon icon-home2"></i>${getLang("HRoutes")}`
     document.getElementById('HDIY').innerHTML = `<i class="icon icon-plus-circle mb-3"></i>${getLang("HDIY")}`
     document.getElementById('HAboutUs').innerHTML = `<i class="icon icon-question"></i>${getLang("HAboutUs")}`

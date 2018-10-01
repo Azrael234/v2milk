@@ -1,15 +1,17 @@
 {
   "name": "V2Milk",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Very 2 Milk",
   "main": "src/main/main.js",
   "scripts": {
     "start": "export NODE_ENV=noPack && electron .",
-    "dev": "export NODE_ENV=Dev && electron .",
-    "packageWin": "electron-packager . V2Milk --platform=win32 --win32metadata.CompanyName=V2Milk --win32metadata.ProductName=V2Milk --out V2MilkAPP --arch=x64 --app-copyright=V2Milk.com --app-version=0.1.0 --electron-version=2.0.8 --overwrite --asar --ignore=extra/ --icon V2Milk.ico --extra-resource=extra/",
+    "dev": "export NODE_ENV=Devv && electron .",
+    "startw": "set NODE_ENV=noPack&&electron .",
+    "devw": "set NODE_ENV=Devv&&electron .",
+    "packageWin": "taskkill /im v2milk.exe /f && electron-packager . V2Milk --platform=win32 --win32metadata.CompanyName=V2Milk --win32metadata.ProductName=V2Milk --out V2MilkAPP --arch=x64 --app-copyright=V2Milk.com --app-version=0.1.0 --electron-version=2.0.8 --overwrite --asar --ignore=extra/ --icon V2Milk.ico --extra-resource=extra/",
     "packageMac": "electron-packager . V2Milk --darwin --out V2MilkAPP --arch=x64 --app-version=0.0.1 --electron-version=2.0.8 --app-copyright='Copyright © 2018 V2Milk' --app-bundle-id=V2Milk --overwrite --asar --ignore=extra/ --icon V2Milk.icns --extra-resource=extra/"
   },
-  "repository": "https://V2Milk.com",
+  "repository": "https://V2Milk.icu",
   "keywords": [
     "V2Milk"
   ],
@@ -21,9 +23,9 @@
   "dependencies": {
     "bluebird": "^3.5.2",
     "child_process": "^1.0.2",
-    "electron-store": "^2.0.0",
     "http": "0.0.0",
     "path": "^0.12.7",
-    "request": "^2.87.0"
+    "request": "^2.87.0",
+    "sudo-prompt": "^8.2.3"
   }
 }
