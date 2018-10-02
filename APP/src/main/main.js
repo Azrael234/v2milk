@@ -26,7 +26,7 @@ let __libname = path.dirname(path.dirname(path.dirname(__dirname)))
 if(isDev){
     __libname = path.dirname(path.dirname(__dirname))
 }else if(isDev && isWin){
-	__libname = __dirname
+    __libname = __dirname
 }
 if(isNoPack){
     __libname = path.dirname(path.dirname(__dirname))
@@ -74,13 +74,13 @@ function init(){
                 console.log(getLang("Loaded"))
             })
         }).catch(function(error){
-			console.log(error)
-			noHelper = 1
-			exit()
-		})
+            console.log(error)
+            noHelper = 1
+            exit()
+        })
         initPowerMonitor()
     }).catch(function(error){
-		console.log(error)
+        console.log(error)
         noHelper = 1
         exit()
     })
@@ -118,9 +118,9 @@ function initPowerMonitor(){
 
 //main window function
 function createWindow() {
-	if(isMac){
-		app.dock.show()
-	}
+    if(isMac){
+        app.dock.show()
+    }
 
     if (isDev) {
         mainWindow = new BrowserWindow(
@@ -134,7 +134,7 @@ function createWindow() {
             }
         )
         mainWindow.loadFile('index.html')
-	    mainWindow.webContents.openDevTools()
+        mainWindow.webContents.openDevTools()
     }else{
         mainWindow = new BrowserWindow(
             {
@@ -149,12 +149,12 @@ function createWindow() {
         mainWindow.loadFile('index.html')
     }
 
-	mainWindow.on('closed', function () {
+    mainWindow.on('closed', function () {
         mainWindow = null
-		if(isMac){
-			app.dock.hide()
-		}
-	})
+        if(isMac){
+            app.dock.hide()
+        }
+    })
 }
 
 function reloadWindow(){
@@ -172,16 +172,11 @@ function reloadWindow(){
 function reopenWindow() {
     if(mainWindow == null){
         createWindow()
-        if(serverConnected != null){
-            setTimeout(function(){
-                updateConnectedRoute(serverConnected)
-            }, 1000)
-        } 
     }else{
         mainWindow.show()
-		if(isMac){
-			app.dock.show()
-		}
+        if(isMac){
+            app.dock.show()
+        }
     }
 }
 
@@ -199,6 +194,18 @@ function editPacAlert(){
             shell.openItem(PacFilePath)
         }
     })
+}
+
+function windowAlert(message){
+    var options = {
+        type: 'info',
+        title: global.SiteName,
+        message: message,
+        buttons: [getLang("done")],
+        defaultId: 0,
+        icon: path.join(__static, 'ico', 'ico.png')
+    }
+    dialog.showMessageBox(options, function(options){})
 }
 
 function exit(){
@@ -231,48 +238,52 @@ dialog.showErrorBox = (title, content) => {
 }
 
 ipc.on('onClickControl',function(event, element, data) {
-	switch(element){
-		case "getSavedData":
-			getSavedData()
-			break
-		case "login":
-			var loginAction = {
-	            "actions" : [
-	            	"v-pills-5|set|tab-pane animated fadeInUpShort go show active",
-	                "v-pills-1|set|tab-pane animated fadeInUpShort go",
-	                "v-pills-2|set|tab-pane animated fadeInUpShort go",
-	                "v-pills-3|set|tab-pane animated fadeInUpShort go",
-	                "v-pills-4|set|tab-pane animated fadeInUpShort go",
-	            	"v-pills-1-tab|set|nav-link",
-	                "v-pills-2-tab|set|nav-link",
-	                "v-pills-3-tab|set|nav-link",
-	                "v-pills-4-tab|set|nav-link"
-	            ]
-	        }
-			event.sender.send("onMainFrameChange", JSON.stringify(loginAction))
-			break
-		case "onlogin":
-	        var dataa = {'data': PHP.uc_authcode(data, "ENCODE", ucKey)}
-	        var content = qs.stringify(dataa);
-	        sendRequest(event, content, data)
-			break
+    switch(element){
+        case "getSavedData":
+            getSavedData()
+            break
+        case "callRendererFrameChange":
+            webContentsSend("onMainFrameChange", data)
+            break
+        case "login":
+            var loginAction = {
+                "actions" : [
+                    "v-pills-5|set|tab-pane animated fadeInUpShort go show active",
+                    "v-pills-1|set|tab-pane animated fadeInUpShort go",
+                    "v-pills-2|set|tab-pane animated fadeInUpShort go",
+                    "v-pills-3|set|tab-pane animated fadeInUpShort go",
+                    "v-pills-4|set|tab-pane animated fadeInUpShort go",
+                    "v-pills-1-tab|set|nav-link",
+                    "v-pills-2-tab|set|nav-link",
+                    "v-pills-3-tab|set|nav-link",
+                    "v-pills-4-tab|set|nav-link",
+                    "v-pills-7-tab|set|nav-link"
+                ]
+            }
+            event.sender.send("onMainFrameChange", JSON.stringify(loginAction))
+            break
+        case "onlogin":
+            var dataa = {'data': PHP.uc_authcode(data, "ENCODE", ucKey)}
+            var content = qs.stringify(dataa);
+            sendRequest(event, content, data)
+            break
         case "onloginTry":
             var dataa = {'data': PHP.uc_authcode(data, "ENCODE", ucKey)}
             var content = qs.stringify(dataa);
             sendRequest(event, content, data, true)
             break
         case "register":
-			shell.openExternal(global.RegisterPath)
-			break
-		case "onV2RayGlobalConnect":
+            shell.openExternal(global.RegisterPath)
+            break
+        case "onV2RayGlobalConnect":
             jumpToLog()
-			rebootServer("GLOBAL", data)
-			break
-		case "onV2RayPACConnect":
+            rebootServer("GLOBAL", data)
+            break
+        case "onV2RayPACConnect":
             jumpToLog()
-			rebootServer("PAC", data)
-			break
-		case "onV2RayStopServers":
+            rebootServer("PAC", data)
+            break
+        case "onV2RayStopServers":
             closeServer()
             break
         case "quit":
@@ -293,12 +304,20 @@ ipc.on('onClickControl',function(event, element, data) {
             editPacAlert()
             break
         case "getIfRouteConnected":
-
+            if(serverConnected != null && typeof(serverConnected) != "undefined" && serverConnected.indexOf("|") >= 0){
+                updateConnectedRoute(serverConnected, serverMode)
+            } 
+            break
+        case "getSystemSettings":
+            sendSystemSettings()
+            break
+        case "saveSystemSettings":
+            saveConfigFromRendener(data)
             break
         default:
-			webContentsSend("V2Ray-log", getLang("IllegalAccess"))
-			break
-	}
+            webContentsSend("V2Ray-log", getLang("IllegalAccess"))
+            break
+    }
 })
 
 function cleanLog(){
@@ -307,52 +326,55 @@ function cleanLog(){
 
 //Login Functions
 function sendRequest(event, content, upa, nolog = false){
-	request(`${global.APIPath}?${content}`, function (error, response, body) {
-		if (!error && response.statusCode == 200) {
-			processData(event, body, upa, nolog)
-		}
-	})
+    request(`${global.APIPath}?${content}`, function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            processData(event, body, upa, nolog)
+        }
+    })
 }
 
 function processData(event, data, upa, nolog = false){
-	data = PHP.uc_authcode(PHP.licenseDecodePart(data, licKey), "DECODE", ucKey)
-	try{
+    data = PHP.uc_authcode(PHP.licenseDecodePart(data, licKey), "DECODE", ucKey)
+    try{
         var dataa = JSON.parse(data);
         if(dataa.result == "success"){
             if(dataa.package.length == 0){
-            	event.sender.send("onMainCall", getLang("NoProductInYourAccount"))
+                event.sender.send("onMainCall", getLang("NoProductInYourAccount"))
             }else{
                 saveData(upa)
                 var loginAction = {
-		            "actions" : [
-		            	"v-pills-5|set|tab-pane animated fadeInUpShort go",
-		                "v-pills-1|set|tab-pane animated fadeInUpShort go show active",
-		                "v-pills-2|set|tab-pane animated fadeInUpShort go",
-		                "v-pills-3|set|tab-pane animated fadeInUpShort go",
-		                "v-pills-4|set|tab-pane animated fadeInUpShort go",
-		            	"v-pills-1-tab|set|nav-link active",
-		                "v-pills-2-tab|set|nav-link",
-		                "v-pills-3-tab|set|nav-link",
-		                "v-pills-4-tab|set|nav-link"
-		            ]
-		        }
-				event.sender.send("onMainFrameChange", JSON.stringify(loginAction))
+                    "actions" : [
+                        "v-pills-1|set|tab-pane animated fadeInUpShort go show active",
+                        "v-pills-2|set|tab-pane animated fadeInUpShort go",
+                        "v-pills-3|set|tab-pane animated fadeInUpShort go",
+                        "v-pills-4|set|tab-pane animated fadeInUpShort go",
+                        "v-pills-5|set|tab-pane animated fadeInUpShort go",
+                        "v-pills-6|set|tab-pane animated fadeInUpShort go",
+                        "v-pills-7|set|tab-pane animated fadeInUpShort go",
+                        "v-pills-1-tab|set|nav-link active",
+                        "v-pills-2-tab|set|nav-link",
+                        "v-pills-3-tab|set|nav-link",
+                        "v-pills-4-tab|set|nav-link",
+                        "v-pills-7-tab|set|nav-link"
+                    ]
+                }
+                event.sender.send("onMainFrameChange", JSON.stringify(loginAction))
                 event.sender.send('onMainCallExec', 'processLoginData', data)
                 serverLoad = getServersList(data)
                 updateTray()
             }
         }else if(dataa.result == "error" && !nolog){
-        	switch(dataa.message){
-        		case "Illegal Data":
-            		event.sender.send("onMainCall", getLang("IllegalData"))
-        			break
-        		case "Email or Password Invalid":
-            		event.sender.send("onMainCall", getLang("WrongUserOrPass"))
-        			break
-        		default:
-            		event.sender.send("onMainCall", getLang("UnknownError"))
-        			break
-        	}
+            switch(dataa.message){
+                case "Illegal Data":
+                    event.sender.send("onMainCall", getLang("IllegalData"))
+                    break
+                case "Email or Password Invalid":
+                    event.sender.send("onMainCall", getLang("WrongUserOrPass"))
+                    break
+                default:
+                    event.sender.send("onMainCall", getLang("UnknownError"))
+                    break
+            }
         }
     }catch(error){
         if(!nolog){
@@ -691,41 +713,55 @@ function saveConfig(node){
     })
 }
 
+function saveConfigFromRendener(data){
+    try{
+        data = JSON.parse(data)
+        PacPort = data.PacPort.toString() ? data.PacPort.toString() : 7777
+        Socks5V2Port = parseInt(data.Socks5V2Port) ? parseInt(data.Socks5V2Port) : 1081
+        HttpV2Port = parseInt(data.HttpV2Port) ? parseInt(data.HttpV2Port) : 8001
+        saveUpdateConfig()
+        windowAlert(getLang("SystemConfigUpdated"))
+        jumpToMain()
+    }catch(error){
+        windowAlert(getLang("UnknownErrorDetailed", [`%error|${error}`]))
+    }
+}
+
 //PAC Server start && close
 function startPacHttpServer(){
     return new Promise(function(resolve, reject) {
         webContentsSend("V2Ray-log", getLang("PacServerStarting"))
-    	PACServer = http.createServer()
+        PACServer = http.createServer()
 
-    	PACServer.on('request', (request, response) => {
-    	    if (request.url == '/pac') {
-    			var pacfile = fs.readFileSync(PacFilePath)
-    			response.writeHead(200,{"content-type":"text/plain","connection":"close","transfer-encoding":"identity"});
-    			response.end(pacfile);
-    		}else{
-    			response.writeHead(404)
-    			response.end("404")
-    		}
-    	})
+        PACServer.on('request', (request, response) => {
+            if (request.url == '/pac') {
+                var pacfile = fs.readFileSync(PacFilePath)
+                response.writeHead(200,{"content-type":"text/plain","connection":"close","transfer-encoding":"identity"});
+                response.end(pacfile);
+            }else{
+                response.writeHead(404)
+                response.end("404")
+            }
+        })
 
-    	PACServer.listen(parseInt(PacPort), '127.0.0.1');
+        PACServer.listen(parseInt(PacPort), '127.0.0.1');
 
-    	PACServer.on('listening', () => {
-    		webContentsSend("V2Ray-log", getLang("PacServerStarted"))
+        PACServer.on('listening', () => {
+            webContentsSend("V2Ray-log", getLang("PacServerStarted"))
             return resolve()
-    	})
+        })
 
-    	PACServer.on("connection",function(socket){
-    		sockets.push(socket);
-    		socket.once("close",function(){
-    			sockets.splice(sockets.indexOf(socket),1);
-    		});
-    	})
+        PACServer.on("connection",function(socket){
+            sockets.push(socket);
+            socket.once("close",function(){
+                sockets.splice(sockets.indexOf(socket),1);
+            });
+        })
 
-    	PACServer.on('error', (data) => {
-    		webContentsSend("V2Ray-log", getLang("PacServerStartFailed", [`%error|${data}`]))
+        PACServer.on('error', (data) => {
+            webContentsSend("V2Ray-log", getLang("PacServerStartFailed", [`%error|${data}`]))
             return reject(data)
-    	})
+        })
     })
 }
 
@@ -836,26 +872,26 @@ function updateConnectedRoute(node, mode = ""){
 //Proxy Set
 function initProxyHelper(){
     return new Promise(function(resolve, reject) {
-		if(isMac){
-			fs.readFile(macToolPath, {encoding:"utf-8"}, function (err, str) {
-				if(err){
-					var command = `cp ${helperPath} "${macToolPath}" && chown root:admin "${macToolPath}" && chmod a+rx "${macToolPath}" && chmod +s "${macToolPath}"`
-					sudo.exec(command, { name: 'V2Milk APP' }, (error, stdout, stderr) => {
-						if (error || stderr) {
-							ProxyHelperAlert(getLang("HelperInstallFailed"), 1)
-							return reject(error)
-						} else {
-							ProxyHelperAlert(getLang("HelperInstallSuccess"), 0)
-							return resolve()
-						}
-					})
-				}else{
-					return resolve()
-				}
-			})
-		}else{
-			return resolve()
-		}
+        if(isMac){
+            fs.readFile(macToolPath, {encoding:"utf-8"}, function (err, str) {
+                if(err){
+                    var command = `cp ${helperPath} "${macToolPath}" && chown root:admin "${macToolPath}" && chmod a+rx "${macToolPath}" && chmod +s "${macToolPath}"`
+                    sudo.exec(command, { name: 'V2Milk APP' }, (error, stdout, stderr) => {
+                        if (error || stderr) {
+                            ProxyHelperAlert(getLang("HelperInstallFailed"), 1)
+                            return reject(error)
+                        } else {
+                            ProxyHelperAlert(getLang("HelperInstallSuccess"), 0)
+                            return resolve()
+                        }
+                    })
+                }else{
+                    return resolve()
+                }
+            })
+        }else{
+            return resolve()
+        }
     })
 }
 
@@ -960,10 +996,12 @@ function rebootPACServer(mode){
                 PACServer = null
                 startPacHttpServer().then(function(){
                     return resolve(true)
+                }).catch(error=>{
+                    return error
                 })
             })
         }).catch(error=>{
-            return error
+            return reject(error)
         })
     }
 }
@@ -1204,11 +1242,45 @@ function jumpToLog(){
             "v-pills-2|set|tab-pane animated fadeInUpShort go",
             "v-pills-3|set|tab-pane animated fadeInUpShort go",
             "v-pills-4|set|tab-pane animated fadeInUpShort go show active",
+            "v-pills-6|set|tab-pane animated fadeInUpShort go",
+            "v-pills-7|set|tab-pane animated fadeInUpShort go",
             "v-pills-4-tab|set|nav-link active",
             "v-pills-1-tab|set|nav-link",
             "v-pills-2-tab|set|nav-link",
-            "v-pills-3-tab|set|nav-link"
+            "v-pills-3-tab|set|nav-link",
+            "v-pills-7-tab|set|nav-link"
         ]
     }
     webContentsSend("onMainFrameChange", JSON.stringify(logAction))
+}
+
+function jumpToMain(){
+    var logAction = {
+        "actions" : [
+            "v-pills-1|set|tab-pane animated fadeInUpShort go show active",
+            "v-pills-2|set|tab-pane animated fadeInUpShort go",
+            "v-pills-3|set|tab-pane animated fadeInUpShort go",
+            "v-pills-4|set|tab-pane animated fadeInUpShort go",
+            "v-pills-5|set|tab-pane animated fadeInUpShort go",
+            "v-pills-6|set|tab-pane animated fadeInUpShort go",
+            "v-pills-7|set|tab-pane animated fadeInUpShort go",
+            "v-pills-1-tab|set|nav-link active",
+            "v-pills-2-tab|set|nav-link",
+            "v-pills-3-tab|set|nav-link",
+            "v-pills-4-tab|set|nav-link",
+            "v-pills-7-tab|set|nav-link"
+        ]
+    }
+    webContentsSend("onMainFrameChange", JSON.stringify(logAction))
+}
+
+function sendSystemSettings(){
+    var systemAction = {
+        "actions" : [
+            `Socks5Port|value|${Socks5V2Port}`,
+            `HttpPort|value|${HttpV2Port}`,
+            `PACPort|value|${PacPort}`,
+        ]
+    }
+    webContentsSend("onMainFrameChange", JSON.stringify(systemAction))
 }

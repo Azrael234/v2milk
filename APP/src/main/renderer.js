@@ -8,6 +8,7 @@ const path = require('path')
 const ipc = require('electron').ipcRenderer;
 const currentWindow = remote.getCurrentWindow()
 const milksubmit = document.getElementById('V2Milk-submit')
+const milksettingsSubmit = document.getElementById('V2Milk-SettingSubmit')
 const milkstop = document.getElementById('V2Milk-stopServers')
 const milkreboot = document.getElementById('V2Milk-rebootPACServer')
 const milkv2logdown = document.getElementById('V2LogToBottom')
@@ -46,6 +47,22 @@ ipc.on("systemEditLang", function(event, message) {
         }
     })
 
+    milksettingsSubmit.addEventListener('click', () => {
+        var socks5 = parseInt(document.getElementById('Socks5Port').value)
+        var http = parseInt(document.getElementById('HttpPort').value)
+        var pac = parseInt(document.getElementById('PACPort').value)
+        if(!isIntNumForPort(socks5) || !isIntNumForPort(http) || !isIntNumForPort(pac)){
+            alert(getLang("IllegalData"))
+        }else{
+            var systems = {
+                "Socks5V2Port" : socks5,
+                "HttpV2Port" : http,
+                "PacPort" : pac
+            }
+            ipc.send('onClickControl', 'saveSystemSettings', JSON.stringify(systems))
+        }
+    })
+
     milkv2logdown.addEventListener('click', () => {
         btnlog.scrollTop = btnlog.scrollHeight
     })
@@ -63,20 +80,23 @@ ipc.on("systemEditLang", function(event, message) {
     })
 
     milkAddCustomRoute.addEventListener('click', () => {
-        var loginAction = {
+        var addAction = {
             "actions" : [
-                "v-pills-5|set|tab-pane animated fadeInUpShort go show active",
+                "v-pills-6|set|tab-pane animated fadeInUpShort go show active",
                 "v-pills-1|set|tab-pane animated fadeInUpShort go",
                 "v-pills-2|set|tab-pane animated fadeInUpShort go",
                 "v-pills-3|set|tab-pane animated fadeInUpShort go",
                 "v-pills-4|set|tab-pane animated fadeInUpShort go",
+                "v-pills-5|set|tab-pane animated fadeInUpShort go",
+                "v-pills-7|set|tab-pane animated fadeInUpShort go",
                 "v-pills-1-tab|set|nav-link",
                 "v-pills-2-tab|set|nav-link",
                 "v-pills-3-tab|set|nav-link",
-                "v-pills-4-tab|set|nav-link"
+                "v-pills-4-tab|set|nav-link",
+                "v-pills-7-tab|set|nav-link"
             ]
         }
-        ipc.send("onMainFrameChange", JSON.stringify(loginAction))
+        ipc.send('onClickControl', 'callRendererFrameChange', JSON.stringify(addAction))
     })
 
     ipc.on("onMainCall", function(event, message) {
@@ -208,12 +228,28 @@ function initHtml(){
     document.getElementById('HDIY').innerHTML = `<i class="icon icon-plus-circle mb-3"></i>${getLang("HDIY")}`
     document.getElementById('HAboutUs').innerHTML = `<i class="icon icon-question"></i>${getLang("HAboutUs")}`
     document.getElementById('HLog').innerHTML = `<i class="icon icon-queue"></i>${getLang("HLog")}`
+    document.getElementById('HSystemSettings').innerHTML = `<i class="icon icon-settings2"></i>${getLang("HSystemSettings")}`
     document.getElementById('aboutUs').innerHTML = getLang("SoftWareLicense")
     document.getElementById('HSysLog').innerHTML = getLang("HSysLog")
     document.getElementById('HV2Log').innerHTML = getLang("HV2Log")
+    document.getElementById('SystemSettings').innerHTML = getLang("SystemSettings")
+
+
+    document.getElementById('Socks5PortDecs').innerHTML = getLang("Socks5PortDecs")
+    document.getElementById('HttpPortDecs').innerHTML = getLang("HttpPortDecs")
+    document.getElementById('PACPortDecs').innerHTML = getLang("PACPortDecs")
+    document.getElementById('V2Milk-SettingSubmit').value = getLang("SettingSubmit")
+
+
     document.getElementById('emailF').placeholder = getLang("Email")
     document.getElementById('passwordF').placeholder = getLang("Password")
     document.getElementById('V2Milk-submit').value = getLang("Submit")
+
+    initSystemSettings()
+}
+
+function initSystemSettings(){
+    ipc.send('onClickControl', 'getSystemSettings', '')
 }
 
 function afterLoginExec(message){
@@ -288,4 +324,12 @@ function getLang(lang, msg = []){
         }
     }
     return langf
+}
+
+function isIntNumForPort(val){
+    if(!isNaN(val) && val <= 65535 && val >= 1){
+        return true
+    }else{
+        return false
+    }
 }
