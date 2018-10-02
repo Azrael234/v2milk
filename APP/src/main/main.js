@@ -172,6 +172,11 @@ function reloadWindow(){
 function reopenWindow() {
     if(mainWindow == null){
         createWindow()
+        if(serverConnected != null){
+            setTimeout(function(){
+                updateConnectedRoute(serverConnected)
+            }, 1000)
+        } 
     }else{
         mainWindow.show()
 		if(isMac){
