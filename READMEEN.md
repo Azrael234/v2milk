@@ -7,7 +7,7 @@ V2Ray Cross-Platform Client
 * ~~V2Ray for MacOS~~(Done)
 * ~V2Ray for Windows~(Done)
 * V2Ray for Linux(Not tested)
-* Custom Routes
+* Custom Routes(Subscribe is part done)
 * QRCode
 * ~~PAC Actions~~(Done)
 
@@ -58,6 +58,7 @@ npm install -g electron-packager
 * <a href='https://ko-fi.com/U7U7K54E' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://az743702.vo.msecnd.net/cdn/kofi4.png?v=f' border='0' alt='Buy Me a Coffee' /></a>
 
 # Update Log
+* 0.0.4 Added support for Subscribe(V = 2)
 * 0.0.3 Bug fix, UI Improvements, Added power monitor, added CSP
 * 0.0.2 Added support for multi-language, Improved UI
 * 0.0.1 Main frame done
