@@ -374,7 +374,7 @@ function parseSubscribeData(arr){
         td.innerHTML = arr.url
         tr.appendChild(td)
         var td = document.createElement("td")
-        td.innerHTML = getLang("done")
+        td.innerHTML = getLang("success")
         tr.appendChild(td)
         var td = document.createElement("td")
         td.innerHTML = ''
