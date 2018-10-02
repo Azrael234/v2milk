@@ -9,8 +9,10 @@ const ipc = require('electron').ipcRenderer;
 const currentWindow = remote.getCurrentWindow()
 const milksubmit = document.getElementById('V2Milk-submit')
 const milksettingsSubmit = document.getElementById('V2Milk-SettingSubmit')
+const milkcustomSubmit = document.getElementById('V2Milk-customSubmit')
+const milksubscribSubmit = document.getElementById('V2Milk-subscribSubmit')
 const milkstop = document.getElementById('V2Milk-stopServers')
-const milkreboot = document.getElementById('V2Milk-rebootPACServer')
+const milkrebootPAC = document.getElementById('V2Milk-rebootPACServer')
 const milkv2logdown = document.getElementById('V2LogToBottom')
 const milkv2statusdown = document.getElementById('V2StatusToBottom')
 const milkAddCustomRoute = document.getElementById('AddCustomRoute')
@@ -29,13 +31,67 @@ ipc.send("onClickControl", "getLangChoose", "")
 
 ipc.on("systemEditLang", function(event, message) {
     LangChoose = message
-
     ipc.send('onClickControl', 'getSavedData', '')
-
     initHtml()
-
     ipc.send('onClickControl', 'getIfRouteConnected', '')
+    initEventListeners()
+    initipcEvents()
+    initSystemSettings()
+    initCustom()
+})
 
+function initHtml(){
+    document.getElementById('loginButtonF').innerHTML = `<a class="btn btn-primary btn-xs" style="height:25px;font-size:12px;" onclick="onClickControl('login', 'null')">${getLang("login")}</a>`
+    document.getElementById('PACServer').innerHTML = `<a class="btn btn-primary btn-xs" style="height:25px;font-size:12px;" onclick="onClickControl('editPac', 'null')">${getLang("edit")}</a>`
+    document.getElementById('HDashboard').innerHTML = `<i class="icon-box"></i> ${getLang("HDashboard")}`
+    document.getElementById('useronlineF').innerHTML = getLang("Offline")
+    document.getElementById('usernameF').innerHTML = getLang("PleaseLogin")
+    document.getElementById('Title1').innerHTML = getLang("AccountAction")
+    document.getElementById('Title2').innerHTML = getLang("RouteConnected")
+    document.getElementById('Title3').innerHTML = getLang("PACServer")
+    document.getElementById('RouteLinked').innerHTML = getLang("None")
+    document.getElementById('RouteLinkedIcon').setAttribute("class", "icon icon-cloud-remove2 s-48")
+    document.getElementById('HSelectRoute').innerHTML = getLang("HSelectRoute")
+    document.getElementById('HRoute').innerHTML = getLang("HRoute")
+    document.getElementById('HQRCode').innerHTML = getLang("HQRCode")
+    document.getElementById('HAction').innerHTML = getLang("HAction")
+    document.getElementById('HCSelectRoute').innerHTML = getLang("HCSelectRoute")
+    document.getElementById('HCRoute').innerHTML = getLang("HCRoute")
+    document.getElementById('HCStatus').innerHTML = getLang("HCStatus")
+    document.getElementById('HCAction').innerHTML = getLang("HCAction")
+    document.getElementById('HRoutes').innerHTML = `<i class="icon icon-home2"></i>${getLang("HRoutes")}`
+    document.getElementById('HDIY').innerHTML = `<i class="icon icon-plus-circle mb-3"></i>${getLang("HDIY")}`
+    document.getElementById('HAboutUs').innerHTML = `<i class="icon icon-question"></i>${getLang("HAboutUs")}`
+    document.getElementById('HLog').innerHTML = `<i class="icon icon-queue"></i>${getLang("HLog")}`
+    document.getElementById('HSystemSettings').innerHTML = `<i class="icon icon-settings2"></i>${getLang("HSystemSettings")}`
+    document.getElementById('aboutUs').innerHTML = getLang("SoftWareLicense")
+    document.getElementById('HSysLog').innerHTML = getLang("HSysLog")
+    document.getElementById('HV2Log').innerHTML = getLang("HV2Log")
+    document.getElementById('SystemSettings').innerHTML = getLang("SystemSettings")
+    document.getElementById('Socks5PortDecs').innerHTML = getLang("Socks5PortDecs")
+    document.getElementById('HttpPortDecs').innerHTML = getLang("HttpPortDecs")
+    document.getElementById('PACPortDecs').innerHTML = getLang("PACPortDecs")
+    document.getElementById('V2Milk-SettingSubmit').value = getLang("SettingSubmit")
+
+
+    document.getElementById('CustomConfig').innerHTML = getLang("CustomConfig")
+    document.getElementById('Subscribe').innerHTML = getLang("Subscribe")
+    document.getElementById('SubscribeInfo').innerHTML = getLang("SubscribeInfo")
+    document.getElementById('SubscribeUrl').placeholder = getLang("SubscribeUrl")
+    milkcustomSubmit.value = getLang("CustomSubmit")
+    milksubscribSubmit.value = getLang("SubscribSubmit")
+
+
+    document.getElementById('emailF').placeholder = getLang("Email")
+    document.getElementById('passwordF').placeholder = getLang("Password")
+    document.getElementById('V2Milk-submit').value = getLang("Submit")
+}
+
+function initSystemSettings(){
+    ipc.send('onClickControl', 'getSystemSettings', '')
+}
+
+function initEventListeners(){
     milksubmit.addEventListener('click', () => {
         var uuu = document.getElementById('emailF').value
         var ppp = document.getElementById('passwordF').value
@@ -75,7 +131,7 @@ ipc.on("systemEditLang", function(event, message) {
         ipc.send('onClickControl', 'onV2RayStopServers', '')
     })
 
-    milkreboot.addEventListener('click', () => {
+    milkrebootPAC.addEventListener('click', () => {
         ipc.send('onClickControl', 'onV2RayrebootPACServer', '')
     })
 
@@ -99,6 +155,17 @@ ipc.on("systemEditLang", function(event, message) {
         ipc.send('onClickControl', 'callRendererFrameChange', JSON.stringify(addAction))
     })
 
+    milksubscribSubmit.addEventListener('click', () => {
+        var url = document.getElementById('SubscribeUrl').value
+        if(isLegalURL(url)){
+            ipc.send('onClickControl', 'onSaveSubscribeUrl', url)
+        }else{
+            alert(getLang("IllegalData"))
+        }
+    })
+}
+
+function initipcEvents(){
     ipc.on("onMainCall", function(event, message) {
         alert(message)
     });
@@ -109,8 +176,9 @@ ipc.on("systemEditLang", function(event, message) {
                 afterLoginExec(message)
                 loadPackages(message)
                 break
-            case 'initHtml':
-                initHtml()
+            case 'parseSubscribeData':
+            console.log(1, message)
+                parseSubscribeData(message)
                 break
             default:
                 console.log(getLang("IllegalAccess"))
@@ -204,52 +272,10 @@ ipc.on("systemEditLang", function(event, message) {
         //btnlog.innerHTML = message
         btnstatus.innerHTML = message
     })
-})
-
-function initHtml(){
-    document.getElementById('loginButtonF').innerHTML = `<a class="btn btn-primary btn-xs" style="height:25px;font-size:12px;" onclick="onClickControl('login', 'null')">${getLang("login")}</a>`
-    document.getElementById('PACServer').innerHTML = `<a class="btn btn-primary btn-xs" style="height:25px;font-size:12px;" onclick="onClickControl('editPac', 'null')">${getLang("edit")}</a>`
-    document.getElementById('HDashboard').innerHTML = `<i class="icon-box"></i> ${getLang("HDashboard")}`
-    document.getElementById('useronlineF').innerHTML = getLang("Offline")
-    document.getElementById('usernameF').innerHTML = getLang("PleaseLogin")
-    document.getElementById('Title1').innerHTML = getLang("AccountAction")
-    document.getElementById('Title2').innerHTML = getLang("RouteConnected")
-    document.getElementById('Title3').innerHTML = getLang("PACServer")
-    document.getElementById('RouteLinked').innerHTML = getLang("None")
-    document.getElementById('RouteLinkedIcon').setAttribute("class", "icon icon-cloud-remove2 s-48")
-    document.getElementById('HSelectRoute').innerHTML = getLang("HSelectRoute")
-    document.getElementById('HRoute').innerHTML = getLang("HRoute")
-    document.getElementById('HQRCode').innerHTML = getLang("HQRCode")
-    document.getElementById('HAction').innerHTML = getLang("HAction")
-    document.getElementById('HCSelectRoute').innerHTML = getLang("HCSelectRoute")
-    document.getElementById('HCRoute').innerHTML = getLang("HCRoute")
-    document.getElementById('HCAction').innerHTML = getLang("HCAction")
-    document.getElementById('HRoutes').innerHTML = `<i class="icon icon-home2"></i>${getLang("HRoutes")}`
-    document.getElementById('HDIY').innerHTML = `<i class="icon icon-plus-circle mb-3"></i>${getLang("HDIY")}`
-    document.getElementById('HAboutUs').innerHTML = `<i class="icon icon-question"></i>${getLang("HAboutUs")}`
-    document.getElementById('HLog').innerHTML = `<i class="icon icon-queue"></i>${getLang("HLog")}`
-    document.getElementById('HSystemSettings').innerHTML = `<i class="icon icon-settings2"></i>${getLang("HSystemSettings")}`
-    document.getElementById('aboutUs').innerHTML = getLang("SoftWareLicense")
-    document.getElementById('HSysLog').innerHTML = getLang("HSysLog")
-    document.getElementById('HV2Log').innerHTML = getLang("HV2Log")
-    document.getElementById('SystemSettings').innerHTML = getLang("SystemSettings")
-
-
-    document.getElementById('Socks5PortDecs').innerHTML = getLang("Socks5PortDecs")
-    document.getElementById('HttpPortDecs').innerHTML = getLang("HttpPortDecs")
-    document.getElementById('PACPortDecs').innerHTML = getLang("PACPortDecs")
-    document.getElementById('V2Milk-SettingSubmit').value = getLang("SettingSubmit")
-
-
-    document.getElementById('emailF').placeholder = getLang("Email")
-    document.getElementById('passwordF').placeholder = getLang("Password")
-    document.getElementById('V2Milk-submit').value = getLang("Submit")
-
-    initSystemSettings()
 }
 
-function initSystemSettings(){
-    ipc.send('onClickControl', 'getSystemSettings', '')
+function initCustom(){
+    ipc.send('onClickControl', 'getCustomConfigs', '')
 }
 
 function afterLoginExec(message){
@@ -308,7 +334,6 @@ function loadPackage(mpackage){
             td.innerHTML = `<button type="button" class="btn btn-info btn-xs" onclick="onClickControl('onV2RayGlobalConnect','${mpackage.uuid}|${mpackage.nodes[i].replace(/[\r\n]/g, "")}')">${getLang("ConnectGlobalMode")}</button><button type="button" class="btn btn-success btn-xs" onclick="onClickControl('onV2RayPACConnect','${mpackage.uuid}|${mpackage.nodes[i].replace(/[\r\n]/g, "")}')">${getLang("ConnectPACMode")}</button>`
             tr.appendChild(td)
             routeList.appendChild(tr)
-
         }
     }
 }
@@ -333,3 +358,56 @@ function isIntNumForPort(val){
         return false
     }
 }
+
+function isLegalURL(str){
+    var reg=/(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&:/~\+#]*[\w\-\@?^=%&/~\+#])?/
+    reg = new RegExp(reg)   
+    return reg.test(str)
+}
+
+function parseSubscribeData(arr){
+    arr = JSON.parse(arr)
+    var cRouteList = document.getElementById('cRoutePackages')
+    if(arr.datas.length > 0){
+        var tr = document.createElement("tr")
+        var td = document.createElement("td")
+        td.innerHTML = arr.url
+        tr.appendChild(td)
+        var td = document.createElement("td")
+        td.innerHTML = getLang("done")
+        tr.appendChild(td)
+        var td = document.createElement("td")
+        td.innerHTML = ''
+        tr.appendChild(td)
+        cRouteList.appendChild(tr)
+        for (var i = 0; i < arr.datas[0].length; i++) {
+            var node = arr.datas[0][i]
+            var tr = document.createElement("tr")
+            var td = document.createElement("td")
+            td.innerHTML = node.ps
+            tr.appendChild(td)
+            var td = document.createElement("td")
+            td.innerHTML = `-`
+            tr.appendChild(td)
+            var td = document.createElement("td")
+            var addtoadr = `${node.id}|${node.ps}|${node.add}|${node.port}|${node.type}|${node.tls}|${node.host}|${node.path}|${node.net}|1|${node.aid}`
+            td.innerHTML = `<button type="button" class="btn btn-info btn-xs" onclick="onClickControl('onV2RayGlobalConnect','${addtoadr}')">${getLang("ConnectGlobalMode")}</button><button type="button" class="btn btn-success btn-xs" onclick="onClickControl('onV2RayPACConnect','${addtoadr}')">${getLang("ConnectPACMode")}</button>`
+            tr.appendChild(td)
+            cRouteList.appendChild(tr)
+        }
+    }else{
+        var tr = document.createElement("tr")
+        var td = document.createElement("td")
+        td.innerHTML = arr.url
+        tr.appendChild(td)
+        var td = document.createElement("td")
+        td.innerHTML = getLang("error")
+        tr.appendChild(td)
+        var td = document.createElement("td")
+        td.innerHTML = ''
+        tr.appendChild(td)
+        cRouteList.appendChild(tr)
+    }
+}
+
+

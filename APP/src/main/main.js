@@ -62,7 +62,7 @@ var isRouteBeforeSleep
 var noHelper = null
 var closeFlag = false
 var customRoutes = []
-var customSubscribe = []
+var customSubscribes = []
 
 function init(){
     initProxyHelper().then(function(){
@@ -221,6 +221,15 @@ function webContentsSend(event, message, noConsole = false){
     }
 }
 
+function webContentsSendAction(event, action, message, noConsole = false){
+    if(mainWindow != null){
+        mainWindow.webContents.send(event, action, message)
+        //console.log(`Has Window: ${event} | ${message}`)
+    }else if(!noConsole){
+        console.log(`No Window: ${event} | ${message}`)
+    }
+}
+
 app.on('ready', init)
 
 app.on('window-all-closed', () => {
@@ -313,6 +322,14 @@ ipc.on('onClickControl',function(event, element, data) {
             break
         case "saveSystemSettings":
             saveConfigFromRendener(data)
+            break
+        case "onSaveSubscribeUrl":
+            customSubscribes.push(data)
+            saveUpdateCustomConfig()
+            windowAlert(getLang("CustomConfigUpdated"))
+            break
+        case "getCustomConfigs":
+            getCustomConfigs()
             break
         default:
             webContentsSend("V2Ray-log", getLang("IllegalAccess"))
@@ -1206,8 +1223,8 @@ function initCustomConfig(){
                 }
             }
             customRoutes = defaultConfig.route
-            customSubscribe = defaultConfig.subscribe
-            console.log(getLang("CustomConfigDone", [`%route|${LangChoose}`, `%subscribe|${PacPort}`]))
+            customSubscribes = defaultConfig.subscribe
+            console.log(getLang("CustomConfigDone", [`%route|${customRoutes.length}`, `%subscribe|${customSubscribes.length}`]))
         })
         return resolve()
     })
@@ -1231,6 +1248,64 @@ function saveCustomConfig(config){
             }
         })
     })
+}
+
+function saveUpdateCustomConfig(){
+    var newConfig = {
+        "route" : customRoutes,
+        "subscribe" : customSubscribes,
+    }
+    saveCustomConfig(newConfig).then(function(){
+        webContentsSend("V2Ray-log", getLang("CustomConfigUpdated"))
+    }).catch(error=>{
+        webContentsSend("V2Ray-log", getLang("CustomConfigSavedFailed", [`%error|${error}`]))
+    })
+}
+
+function getCustomConfigs(){
+    parseSubscribes()
+}
+
+function parseSubscribes(){
+    for (var i = customSubscribes.length - 1; i >= 0; i--) {
+        parseSubscribeUrlInfo(customSubscribes[i])
+    }
+}
+
+function parseSubscribeUrlInfo(url){
+    var nodeinfo = {
+        "url" : url,
+        "datas" : []
+    }
+    request(url, function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            if(isBase64(body)){
+                var rdata = new Buffer(body, 'base64').toString()
+                rdata = rdata.split("\n")
+                var datas = []
+                for (var ii = rdata.length - 1; ii >= 0; ii--) {
+                    var rdataa = replaceAll(rdata[ii], "vmess://", "")
+                    if(isBase64(rdataa)){
+                        var irdata = new Buffer(rdataa, 'base64').toString()
+                        try{
+                            irdata = JSON.parse(irdata)
+                            if(typeof(irdata) == "object" && irdata){
+                                datas.push(irdata)
+                            }
+                        }catch(error){
+                            //console.log(error)
+                        }
+                    }
+                }
+                nodeinfo.datas.push(datas)
+            }
+        }
+        updateParseSubscribeData(nodeinfo)
+    })
+}
+
+function updateParseSubscribeData(arr){
+    webContentsSendAction("onMainCallExec", "parseSubscribeData", JSON.stringify(arr), true)
 }
 
 //System other functions
@@ -1283,4 +1358,10 @@ function sendSystemSettings(){
         ]
     }
     webContentsSend("onMainFrameChange", JSON.stringify(systemAction))
+}
+
+function isBase64(str){
+    var base64Test = /^(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}(==)?|[A-Za-z0-9+\/]{3}=?)?$/gi
+    var base64Test = new RegExp(base64Test)
+    return base64Test.test(str)
 }

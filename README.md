@@ -7,7 +7,7 @@ V2Ray 跨平台定制客户端
 * ~~MacOS部分~~(已完成)
 * ~Windows部分~(已完成)
 * Linux部分(已完成但尚未测试)
-* 自定义节点
+* 自定义节点(订阅部分已完成读取使用)
 * 二维码显示
 * ~~PAC重启~~(已完成)
 
@@ -63,6 +63,7 @@ npm install -g electron-packager
 * <a href='https://ko-fi.com/U7U7K54E' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://az743702.vo.msecnd.net/cdn/kofi4.png?v=f' border='0' alt='Buy Me a Coffee' /></a>
 
 # 更新日志
+* 0.0.4 加入了自定义节点部分的订阅支持(V = 2)
 * 0.0.3 修正少量bug，优化UI，加入系统休眠监控，加入CSP
 * 0.0.2 加入多语言支持，优化UI和用户体验
 * 0.0.1 主体框架完成
