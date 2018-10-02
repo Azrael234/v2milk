@@ -42,6 +42,7 @@ git clone https://github.com/Zzm317/V2Milk.git
 cd V2Milk
 cd APP
 npm install
+npm install -g electron-packager
 ```
 
 # 测试方法

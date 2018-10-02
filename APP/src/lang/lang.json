@@ -1,7 +1,8 @@
 {
 	"zh-CN" : [{
 		"LangName" : "简体中文",
-		"Loading" : "启动中",
+		"Loading" : "启动中。。。",
+		"Loaded" : "启动完成～",
 		"ChooseLanguage" : "切换语言",
 		"ActionTooFast" : "你短时间内进行的操作太多了啦。。。别那么着急的说。。。",
 		"NoProductInYourAccount" : "您的账户中看起来并没有产品呢。。。快先去购买吧。。。",
@@ -22,7 +23,7 @@
 		"PacFileEditAlert" : "修改完PAC以后\n别忘了点击刷新图标重启PAC偶～",
 		"SystemConfigSaved" : "已经生成了初始化的配置文件啦w",
 		"SystemConfigParseError" : "初始化的配置文件解析失败了的说。。。使用默认文件中。。。",
-		"SystemConfigDone" : "载入配置文件～\n载入语言：%lang\nPAC端口：%pacPort\nSocks5端口：%socks5Port",
+		"SystemConfigDone" : "载入配置文件～\n载入语言：%lang\nPAC端口：%pacPort\nSocks5端口：%socks5Port\nHTTP端口：%httpPort",
 		"SystemConfigUpdated" : "已经更新配置文件啦w",
 		"SystemConfigReadFailed" : "系统配置文件读取失败。。。\n错误是：%error",
 		"SystemConfigSavedFailed" : "系统配置文件保存失败。。。\n错误是：%error",
@@ -89,6 +90,7 @@
 	"en-US" : [{
 		"LangName" : "English",
 		"Loading" : "Loading...",
+		"Loaded" : "Loaded~",
 		"ChooseLanguage" : "Choose Language",
 		"ActionTooFast" : "Your actions are too fast... Please wait 2 Seconds",
 		"NoProductInYourAccount" : "Seems no product in your account... Please buy one~",
@@ -109,7 +111,7 @@
 		"PacFileEditAlert" : "After edit PAC\nPlease reboot PAC server by use the Refresh button~",
 		"SystemConfigSaved" : "Loaded default config~",
 		"SystemConfigParseError" : "Loading system config failed...Loading default config instead.",
-		"SystemConfigDone" : "Loaded system config~\nLang: %lang\nPAC Port: %pacPort\nSocks5 Port: %socks5Port",
+		"SystemConfigDone" : "Loaded system config~\nLang: %lang\nPAC Port: %pacPort\nSocks5 Port: %socks5Port\nHTTP Port: %httpPort",
 		"SystemConfigUpdated" : "Updated system config~",
 		"SystemConfigReadFailed" : "Load system config failed...\nError: %error",
 		"SystemConfigSavedFailed" : "Save system config failed...\nError: %error",

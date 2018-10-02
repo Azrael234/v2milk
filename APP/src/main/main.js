@@ -37,6 +37,7 @@ __static = path.join(__libname, "extra", "static")
 const appConfigDir = path.join(app.getPath('appData'), "V2Milk")
 const userConfigDir = app.getPath('userData')
 var configPath = path.join(appConfigDir, "set.json")
+var customConfigPath = path.join(appConfigDir, "custom.json")
 var PacFilePath = path.join(appConfigDir, "pac.txt")
 var helperPath = path.join(__libname, 'extra/lib/proxy_conf_helper')
 var macToolPath = path.resolve(userConfigDir, 'proxy_conf_helper')
@@ -51,6 +52,7 @@ var sockets = []
 var userKey = ""
 var PacPort = "7777"
 var Socks5V2Port = 1081
+var HttpV2Port = 8001
 var serverLoad = ""
 var serverConnected = ""
 var serverMode = ""
@@ -59,6 +61,8 @@ var isModeBeforeSleep
 var isRouteBeforeSleep
 var noHelper = null
 var closeFlag = false
+var customRoutes = []
+var customSubscribe = []
 
 function init(){
     initProxyHelper().then(function(){
@@ -66,6 +70,9 @@ function init(){
             Menu.setApplicationMenu(null)
             createWindow()
             renderTray()
+            initCustomConfig().then(function(){
+                console.log(getLang("Loaded"))
+            })
         }).catch(function(error){
 			console.log(error)
 			noHelper = 1
@@ -196,6 +203,7 @@ function exit(){
 function webContentsSend(event, message, noConsole = false){
     if(mainWindow != null){
         mainWindow.webContents.send(event, message)
+        console.log(`Has Window: ${event} | ${message}`)
     }else if(!noConsole){
         console.log(`No Window: ${event} | ${message}`)
     }
@@ -252,9 +260,11 @@ ipc.on('onClickControl',function(event, element, data) {
 			shell.openExternal(global.RegisterPath)
 			break
 		case "onV2RayGlobalConnect":
+            jumpToLog()
 			rebootServer("GLOBAL", data)
 			break
 		case "onV2RayPACConnect":
+            jumpToLog()
 			rebootServer("PAC", data)
 			break
 		case "onV2RayStopServers":
@@ -276,6 +286,9 @@ ipc.on('onClickControl',function(event, element, data) {
             break
         case "editPac":
             editPacAlert()
+            break
+        case "getIfRouteConnected":
+
             break
         default:
 			webContentsSend("V2Ray-log", getLang("IllegalAccess"))
@@ -411,7 +424,7 @@ function initConfig(){
             console.log(getLang("SystemFolderCreated"))
         }
         fs.readFile(configPath, {encoding:"utf-8"}, function (err, str) {
-            var sysconfig = resetConfig()
+            var sysconfig = getDefaultConfig()
             if(err){
                 console.log(getLang("SystemConfigReadFailed", [`%error|${err}`]))
                 saveSysConfig(sysconfig).then(function(){
@@ -431,11 +444,12 @@ function initConfig(){
                     })
                 }
             }
-            PacPort = sysconfig.PacPort.toString()
-            Socks5V2Port = parseInt(sysconfig.Socks5V2Port)
-            userKey = sysconfig.userKey.toString()
-            LangChoose = sysconfig.LangChoose
-            console.log(getLang("SystemConfigDone", [`%lang|${LangChoose}`, `%pacPort|${PacPort}`, `%socks5Port|${Socks5V2Port}`]))
+            PacPort = sysconfig.PacPort.toString() ? sysconfig.PacPort.toString() : 7777
+            Socks5V2Port = parseInt(sysconfig.Socks5V2Port) ? parseInt(sysconfig.Socks5V2Port) : 1081
+            HttpV2Port = parseInt(sysconfig.HttpV2Port) ? parseInt(sysconfig.HttpV2Port) : 8001
+            userKey = sysconfig.userKey.toString() ? sysconfig.userKey.toString() : ""
+            LangChoose = sysconfig.LangChoose ? sysconfig.LangChoose : global.DefaultLang
+            console.log(getLang("SystemConfigDone", [`%lang|${LangChoose}`, `%pacPort|${PacPort}`, `%socks5Port|${Socks5V2Port}`, `%httpPort|${HttpV2Port}`]))
         })
         fs.readFile(PacFilePath, {encoding:"utf-8"}, function (err, str) {
             if(err || str == ""){
@@ -450,12 +464,13 @@ function initConfig(){
     })
 }
 
-function resetConfig(){
+function getDefaultConfig(){
     var defaultConfig = {
         "LangChoose" : global.DefaultLang,
         "userKey" : "",
         "PacPort" : 7777,
-        "Socks5V2Port" : 1081
+        "Socks5V2Port" : 1081,
+        "HttpV2Port" : 8001
     }
     return defaultConfig
 }
@@ -465,7 +480,8 @@ function saveUpdateConfig(){
         "LangChoose" : LangChoose.toString(),
         "userKey" : userKey.toString(),
         "PacPort" : parseInt(PacPort),
-        "Socks5V2Port" : parseInt(Socks5V2Port)
+        "Socks5V2Port" : parseInt(Socks5V2Port),
+        "HttpV2Port" : parseInt(HttpV2Port)
     }
     saveSysConfig(newConfig).then(function(){
         webContentsSend("V2Ray-log", getLang("SystemConfigUpdated"))
@@ -514,7 +530,7 @@ function saveConfig(node){
                 "refresh" : 5,
                 "concurrency" : 3
             },
-            "port" : 8001,
+            "port" : HttpV2Port,
             "protocol" : "http",
             "tag" : "httpDetour",
             "domainOverride" : [
@@ -733,6 +749,8 @@ function startV2RayProcess(arg, node){
     setProxy(arg)
     serverMode = arg
     if(isMac){
+        console.log(path.join(__libname, 'extra/v2ray-core/MacOS/v2ray'))
+        console.log(path.join(appConfigDir, "config.json"))
         V2RayServer = cps.execFile(path.join(__libname, 'extra/v2ray-core/MacOS/v2ray'), ['-config', path.join(appConfigDir, "config.json")])
     }else if(isLinux){
         //V2RayServer = cps.execFile(path.join(__libname, 'extra/v2ray-core/Linux/v2ray'), ['-config', path.join(appConfigDir, "config.json")])
@@ -882,7 +900,7 @@ function setProxy(mode){
                 cps.execSync(`${winToolPath} pac ${pacUrl}`)
                 break
             case "GLOBAL":
-                cps.execSync(`${winToolPath} global ${host}:${Socks5V2Port}`)
+                cps.execSync(`${winToolPath} global ${host}:${HttpV2Port}`)
                 break
             case "OFF":
                 cps.execSync(`${winToolPath} pac ""`)
@@ -1118,4 +1136,74 @@ function editLang(tlang){
     saveUpdateConfig()
     closeServer()
     reloadWindow()
+}
+
+//Custom route functions
+function initCustomConfig(){
+    return new Promise(function(resolve) {
+        fs.readFile(customConfigPath, {encoding:"utf-8"}, function (err, str) {
+            var defaultConfig = getCustomDefaultConfig()
+            if(err){
+                console.log(getLang("CustomConfigReadFailed", [`%error|${err}`]))
+                saveCustomConfig(defaultConfig).then(function(){
+                    console.log(getLang("CustomConfigSaved"))
+                }).catch(error=>{
+                    console.log(getLang("CustomConfigSavedFailed", [`%error|${error}`]))
+                })
+            }else{
+                try{
+                    defaultConfig = JSON.parse(str)
+                }catch(err){
+                    webContentsSend("V2Ray-log", getLang("CustomConfigParseError"))
+                    saveCustomConfig(defaultConfig).then(function(){
+                        console.log(getLang("CustomConfigSaved"))
+                    }).catch(error=>{
+                        console.log(getLang("CustomConfigSavedFailed", [`%error|${error}`]))
+                    })
+                }
+            }
+            customRoutes = defaultConfig.route
+            customSubscribe = defaultConfig.subscribe
+            console.log(getLang("CustomConfigDone", [`%route|${LangChoose}`, `%subscribe|${PacPort}`]))
+        })
+        return resolve()
+    })
+}
+
+function getCustomDefaultConfig(){
+    var defaultConfig = {
+        "route" : [],
+        "subscribe" : [],
+    }
+    return defaultConfig
+}
+
+function saveCustomConfig(config){
+    return new Promise((resolve, reject) => {
+        fs.writeFile(customConfigPath, JSON.stringify(config, null, 4) ,{flag:'w',encoding:'utf-8',mode:'0666'}, function(err){
+            if(err){
+                return reject(err)
+            }else{
+                return resolve(true)
+            }
+        })
+    })
+}
+
+//System other functions
+function jumpToLog(){
+    var logAction = {
+        "actions" : [
+            "v-pills-5|set|tab-pane animated fadeInUpShort go",
+            "v-pills-1|set|tab-pane animated fadeInUpShort go",
+            "v-pills-2|set|tab-pane animated fadeInUpShort go",
+            "v-pills-3|set|tab-pane animated fadeInUpShort go",
+            "v-pills-4|set|tab-pane animated fadeInUpShort go show active",
+            "v-pills-4-tab|set|nav-link active",
+            "v-pills-1-tab|set|nav-link",
+            "v-pills-2-tab|set|nav-link",
+            "v-pills-3-tab|set|nav-link"
+        ]
+    }
+    webContentsSend("onMainFrameChange", JSON.stringify(logAction))
 }

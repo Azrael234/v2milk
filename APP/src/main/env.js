@@ -6,7 +6,7 @@ const isWin = platform === 'win32'
 const isMac = platform === 'darwin'
 const isLinux = platform === 'linux'
 
-const isDev = process.env.NODE_ENV == 'Dev'
+const isDev = process.env.NODE_ENV == 'Devv'
 const isNoPack = process.env.NODE_ENV == 'noPack'
 
 module.exports = {

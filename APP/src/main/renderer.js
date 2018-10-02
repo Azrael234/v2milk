@@ -6,12 +6,13 @@ const fs = require("fs")
 const path = require('path')
 
 const ipc = require('electron').ipcRenderer;
-const currentWindow = remote.getCurrentWindow();
+const currentWindow = remote.getCurrentWindow()
 const milksubmit = document.getElementById('V2Milk-submit')
 const milkstop = document.getElementById('V2Milk-stopServers')
 const milkreboot = document.getElementById('V2Milk-rebootPACServer')
 const milkv2logdown = document.getElementById('V2LogToBottom')
 const milkv2statusdown = document.getElementById('V2StatusToBottom')
+const milkAddCustomRoute = document.getElementById('AddCustomRoute')
 const btnlog = document.getElementById('V2log')
 const btnstatus = document.getElementById('V2Status')
 const LangFile = path.join(path.dirname(__dirname), "lang", "lang.json")
@@ -31,6 +32,8 @@ ipc.on("systemEditLang", function(event, message) {
     ipc.send('onClickControl', 'getSavedData', '')
 
     initHtml()
+
+    ipc.send('onClickControl', 'getIfRouteConnected', '')
 
     milksubmit.addEventListener('click', () => {
         var uuu = document.getElementById('emailF').value
@@ -57,6 +60,23 @@ ipc.on("systemEditLang", function(event, message) {
 
     milkreboot.addEventListener('click', () => {
         ipc.send('onClickControl', 'onV2RayrebootPACServer', '')
+    })
+
+    milkAddCustomRoute.addEventListener('click', () => {
+        var loginAction = {
+            "actions" : [
+                "v-pills-5|set|tab-pane animated fadeInUpShort go show active",
+                "v-pills-1|set|tab-pane animated fadeInUpShort go",
+                "v-pills-2|set|tab-pane animated fadeInUpShort go",
+                "v-pills-3|set|tab-pane animated fadeInUpShort go",
+                "v-pills-4|set|tab-pane animated fadeInUpShort go",
+                "v-pills-1-tab|set|nav-link",
+                "v-pills-2-tab|set|nav-link",
+                "v-pills-3-tab|set|nav-link",
+                "v-pills-4-tab|set|nav-link"
+            ]
+        }
+        ipc.send("onMainFrameChange", JSON.stringify(loginAction))
     })
 
     ipc.on("onMainCall", function(event, message) {
