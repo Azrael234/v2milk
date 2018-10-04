@@ -560,6 +560,7 @@ function saveConfig(node){
             "listen" : "127.0.0.1",
             "port" : Socks5V2Port,
             "protocol" : "socks",
+            "domainOverride": ["tls","http"],
             "settings" : {
               "auth" : "noauth",
               "udp" : false,
@@ -678,8 +679,8 @@ function saveConfig(node){
                         {
                             "id" : nodearr[0],
                             "alterId" : parseInt(nodearr[10]),
-                            "security" : "aes-128-cfb",
-                            "level" : 0
+                            "security" : nodearr[4],
+                            "level" : 1
                         }
                     ],
                     "remark" : nodearr[1]
@@ -690,7 +691,8 @@ function saveConfig(node){
           "wsSettings" : {
             "path" : nodearr[7],
             "headers" : {
-              "Host" : nodearr[6]
+             "Host" : nodearr[6]
+            
             }
           },
           "tcpSettings" : {
@@ -715,7 +717,8 @@ function saveConfig(node){
             "readBufferSize" : 1,
             "downlinkCapacity" : 20
           },
-          "network" : nodearr[8]
+          "network": nodearr[8],
+          "security": nodearr[5],
         }
       }
     }
