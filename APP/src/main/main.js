@@ -681,7 +681,7 @@ function saveConfig(node){
                             "alterId" : parseInt(nodearr[10]),
                             //"security" : nodearr[4],
                             "security" : "nano",
-                            "level" : 1
+                            "level" : 0
                         }
                     ],
                     "remark" : nodearr[1]
