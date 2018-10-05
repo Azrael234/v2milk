@@ -560,7 +560,6 @@ function saveConfig(node){
             "listen" : "127.0.0.1",
             "port" : Socks5V2Port,
             "protocol" : "socks",
-            "domainOverride": ["tls","http"],
             "settings" : {
               "auth" : "noauth",
               "udp" : false,
@@ -568,26 +567,26 @@ function saveConfig(node){
             }
         },   
         "inboundDetour" : [
-        {
-            "listen" : "127.0.0.1",
-            "allocate" : {
-                "strategy" : "always",
-                "refresh" : 5,
-                "concurrency" : 3
-            },
-            "port" : HttpV2Port,
-            "protocol" : "http",
-            "tag" : "httpDetour",
-            "domainOverride" : [
-                "http",
-                "tls"
-            ],
-            "streamSettings" : {
-            },
-            "settings" : {
-                "timeout" : 0
+            {
+                "listen" : "127.0.0.1",
+                "allocate" : {
+                    "strategy" : "always",
+                    "refresh" : 5,
+                    "concurrency" : 3
+                },
+                "port" : HttpV2Port,
+                "protocol" : "http",
+                "tag" : "httpDetour",
+                "domainOverride" : [
+                    "http",
+                    "tls"
+                ],
+                "streamSettings" : {
+                },
+                "settings" : {
+                    "timeout" : 0
+                }
             }
-        }
         ],     
         "log" : {
             "loglevel" : "debug",
@@ -606,63 +605,6 @@ function saveConfig(node){
                 }
             }
         ], 
-        "routing" : {
-            "strategy" : "rules",
-            "settings" : {
-              "domainStrategy" : "IPIfNonMatch",
-              "rules" : [
-                {
-                  "port" : "1-52",
-                  "type" : "field",
-                  "outboundTag" : "direct"
-                },
-                {
-                  "port" : "54-79",
-                  "type" : "field",
-                  "outboundTag" : "direct"
-                },
-                {
-                  "port" : "81-442",
-                  "type" : "field",
-                  "outboundTag" : "direct"
-                },
-                {
-                  "port" : "444-65535",
-                  "type" : "field",
-                  "outboundTag" : "direct"
-                },
-                {
-                  "type" : "field",
-                  "ip" : [
-                    "0.0.0.0\/8",
-                    "10.0.0.0\/8",
-                    "100.64.0.0\/10",
-                    "127.0.0.0\/8",
-                    "169.254.0.0\/16",
-                    "172.16.0.0\/12",
-                    "192.0.0.0\/24",
-                    "192.0.2.0\/24",
-                    "192.168.0.0\/16",
-                    "198.18.0.0\/15",
-                    "198.51.100.0\/24",
-                    "203.0.113.0\/24",
-                    "::1\/128",
-                    "fc00::\/7",
-                    "fe80::\/10",
-                    "geoip:cn"
-                  ],
-                  "outboundTag" : "direct"
-                },
-                {
-                  "type" : "field",
-                  "outboundTag" : "direct",
-                  "domain" : [
-                    "geosite:cn"
-                  ]
-                }
-              ]
-            }
-        },
         "outbound" : {
             "sendThrough" : "0.0.0.0",
             "mux" : {
@@ -679,49 +621,46 @@ function saveConfig(node){
                         {
                             "id" : nodearr[0],
                             "alterId" : parseInt(nodearr[10]),
-                            //"security" : nodearr[4],
-                            "security" : "nano",
+                            "security" : "auto",
                             "level" : 0
                         }
                     ],
                     "remark" : nodearr[1]
                 }
               ]
-        },
-        "streamSettings" : {
-          "wsSettings" : {
-            "path" : nodearr[7],
-            "headers" : {
-             "Host" : nodearr[6]
-            
-            }
-          },
-          "tcpSettings" : {
-            "header" : {
-              "type" : "none"
-            }
-          },
-          "security" : "none",
-          "tlsSettings" : {
-            "serverName" : nodearr[6],
-            "allowInsecure" : false
-          },
-          "kcpSettings" : {
-            "header" : {
-              "type" : "none"
             },
-            "mtu" : 1350,
-            "congestion" : false,
-            "tti" : 20,
-            "uplinkCapacity" : 5,
-            "writeBufferSize" : 1,
-            "readBufferSize" : 1,
-            "downlinkCapacity" : 20
-          },
-          "network": nodearr[8],
-          "security": nodearr[5],
+            "streamSettings" : {
+                "wsSettings" : {
+                    "path" : nodearr[7],
+                    "headers" : {
+                        "Host" : nodearr[6]
+                    }
+                },
+                "tcpSettings" : {
+                    "header" : {
+                        "type" : "none"
+                    }
+                },
+                "security" : nodearr[5],
+                "tlsSettings" : {
+                    "serverName" : nodearr[6],
+                    "allowInsecure" : false
+                },
+                "kcpSettings" : {
+                    "header" : {
+                        "type" : nodearr[4]
+                    },
+                    "mtu" : 1350,
+                    "congestion" : false,
+                    "tti" : 20,
+                    "uplinkCapacity" : 5,
+                    "writeBufferSize" : 1,
+                    "readBufferSize" : 1,
+                    "downlinkCapacity" : 20
+                },
+                "network" : nodearr[8]
+            }
         }
-      }
     }
     return new Promise((resolve, reject) => {
         fs.writeFile(path.join(appConfigDir, "config.json"), JSON.stringify(jsonarr, null, 4) ,{flag:'w',encoding:'utf-8',mode:'0666'}, function(err){
