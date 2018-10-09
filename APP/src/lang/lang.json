@@ -96,9 +96,8 @@
 		"CustomConfigUpdated" : "已经更新自定义节点配置文件啦w",
 		"CustomConfigReadFailed" : "自定义节点配置文件读取失败。。。\n错误是：%error",
 		"CustomConfigSavedFailed" : "自定义节点配置文件保存失败。。。\n错误是：%error",
-
 		"removeSubscribeURL" : "删除订阅",
-
+		"noDataFound" : "什么都没有找到的说。。。",
 		"ConnectPACMode" : "PAC连接",
 		"ConnectGlobalMode" : "全局连接",
 		"ConnectOffMode" : "断开连接",
@@ -210,9 +209,8 @@
 		"CustomConfigUpdated" : "Updated custom config~",
 		"CustomConfigReadFailed" : "Load custom config failed...\nError: %error",
 		"CustomConfigSavedFailed" : "Save custom config failed...\nError: %error",
-
 		"removeSubscribeURL" : "Remove",
-
+		"noDataFound" : "Got nothing here....",
 		"ConnectPACMode" : "PAC Mode",
 		"ConnectGlobalMode" : "Global Mode",
 		"ConnectOffMode" : "Disconnect",

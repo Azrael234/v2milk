@@ -215,7 +215,7 @@ function exit(){
 function webContentsSend(event, message, noConsole = false){
     if(mainWindow != null){
         mainWindow.webContents.send(event, message)
-        console.log(`Has Window: ${event} | ${message}`)
+        //console.log(`Has Window: ${event} | ${message}`)
     }else if(!noConsole){
         console.log(`No Window: ${event} | ${message}`)
     }
@@ -1230,12 +1230,27 @@ function saveUpdateCustomConfig(){
 }
 
 function getCustomConfigs(){
+    parseCustoms()
     parseSubscribes()
 }
 
+function parseCustoms(){
+    if(customRoutes.length > 0){
+        for (var i = customRoutes.length - 1; i >= 0; i--) {
+            //parseCustomRouteInfo(customRoutes[i])
+        }
+    }else{
+        webContentsSendAction("onMainCallExec", "noCustomData", "Custom", true)
+    }
+}
+
 function parseSubscribes(){
-    for (var i = customSubscribes.length - 1; i >= 0; i--) {
-        parseSubscribeUrlInfo(customSubscribes[i])
+    if(customSubscribes.length > 0){
+        for (var i = customSubscribes.length - 1; i >= 0; i--) {
+            parseSubscribeUrlInfo(customSubscribes[i])
+        }   
+    }else{
+        webContentsSendAction("onMainCallExec", "noCustomData", "Subscribe", true)
     }
 }
 

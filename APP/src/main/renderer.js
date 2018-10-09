@@ -60,6 +60,9 @@ function initHtml(){
     document.getElementById('HCRoute').innerHTML = getLang("HCRoute")
     document.getElementById('HCStatus').innerHTML = getLang("HCStatus")
     document.getElementById('HCAction').innerHTML = getLang("HCAction")
+    document.getElementById('HCCRoute').innerHTML = getLang("HCRoute")
+    document.getElementById('HCCStatus').innerHTML = getLang("HCStatus")
+    document.getElementById('HCCAction').innerHTML = getLang("HCAction")
     document.getElementById('HRoutes').innerHTML = `<i class="icon icon-home2"></i>${getLang("HRoutes")}`
     document.getElementById('HDIY').innerHTML = `<i class="icon icon-plus-circle mb-3"></i>${getLang("HDIY")}`
     document.getElementById('HAboutUs').innerHTML = `<i class="icon icon-question"></i>${getLang("HAboutUs")}`
@@ -94,7 +97,7 @@ function initEventListeners(){
         var uuu = document.getElementById('emailF').value
         var ppp = document.getElementById('passwordF').value
         if(uuu == "" || ppp == ""){
-            alert(getLang("UserPassNeeded"))
+            alterToast("error", getLang("UserPassNeeded"))
         }else{
             var upa = `{"email":"${uuu}","password":"${ppp}"}`
             ipc.send('onClickControl', 'onlogin', upa)
@@ -102,16 +105,16 @@ function initEventListeners(){
     })
 
     milksettingsSubmit.addEventListener('click', () => {
-        var socks5 = parseInt(document.getElementById('Socks5Port').value)
-        var http = parseInt(document.getElementById('HttpPort').value)
-        var pac = parseInt(document.getElementById('PACPort').value)
+        var socks5 = document.getElementById('Socks5Port').value
+        var http = document.getElementById('HttpPort').value
+        var pac = document.getElementById('PACPort').value
         if(!isIntNumForPort(socks5) || !isIntNumForPort(http) || !isIntNumForPort(pac)){
-            alert(getLang("IllegalData"))
+            alterToast("error", getLang("IllegalData"))
         }else{
             var systems = {
-                "Socks5V2Port" : socks5,
-                "HttpV2Port" : http,
-                "PacPort" : pac
+                "Socks5V2Port" : parseInt(socks5),
+                "HttpV2Port" : parseInt(http),
+                "PacPort" : parseInt(pac)
             }
             ipc.send('onClickControl', 'saveSystemSettings', JSON.stringify(systems))
         }
@@ -155,6 +158,7 @@ function initEventListeners(){
 
     milkrefreshSubscribes.addEventListener('click', () => {
         document.getElementById('cRoutePackages').innerHTML = ""
+        document.getElementById('cCRoutePackages').innerHTML = ""
         initCustom()
     })
 
@@ -163,15 +167,28 @@ function initEventListeners(){
         var url = document.getElementById('SubscribeUrl').value
         if(isLegalURL(url) && name != ""){
             ipc.send('onClickControl', 'onSaveSubscribeUrl', `${name}|${url}`)
+            cleanSubscribeTab()
         }else{
-            alert(getLang("IllegalData"))
+            alterToast("error", getLang("IllegalData"))
         }
     })
 }
 
+function alterToast(type, message, title = global.SiteName){
+    document.getElementById('alertToastButton').setAttribute("data-title", title)
+    document.getElementById('alertToastButton').setAttribute("data-message", message)
+    document.getElementById('alertToastButton').setAttribute("data-type", type)
+    document.getElementById('alertToastButton').setAttribute("data-position-class", "toast-top-right")
+    document.getElementById('alertToastButton').click()
+}
+
 function initipcEvents(){
     ipc.on("onMainCall", function(event, message) {
-        alert(message)
+        document.getElementById('alertToastButton').setAttribute("data-title", global.SiteName)
+        document.getElementById('alertToastButton').setAttribute("data-message", message)
+        document.getElementById('alertToastButton').setAttribute("data-type", "info")
+        document.getElementById('alertToastButton').setAttribute("data-position-class", "toast-top-right")
+        document.getElementById('alertToastButton').click()
     })
 
     ipc.on("onMainCallExec", function(event, action, message) {
@@ -183,12 +200,16 @@ function initipcEvents(){
             case 'parseSubscribeData':
                 parseSubscribeData(message)
                 break
+            case 'noCustomData':
+                noCustomData(message)
+                break
             case 'reloadCustom':
                 document.getElementById('cRoutePackages').innerHTML = ""
+                document.getElementById('cCRoutePackages').innerHTML = ""
                 initCustom()
                 break
             default:
-                console.log(getLang("IllegalAccess"))
+                alterToast('error', getLang("IllegalAccess"))
                 break
         }
     })
@@ -224,7 +245,7 @@ function initipcEvents(){
                         document.getElementById(action[0]).innerHTML = action[2]
                         break
                     default:
-                        console.log(getLang("IllegalAccess"))
+                        alterToast('error', getLang("IllegalAccess"))
                         break
                 }
             }
@@ -401,7 +422,7 @@ function parseSubscribeData(arr){
             td.innerHTML = node.ps
             tr.appendChild(td)
             var td = document.createElement("td")
-            td.innerHTML = `-`
+            td.innerHTML = ``
             tr.appendChild(td)
             var td = document.createElement("td")
             var addtoadr = `${node.id}|${node.ps}|${node.add}|${node.port}|${node.type}|${node.tls}|${node.host}|${node.path}|${node.net}|1|${node.aid}`
@@ -424,4 +445,36 @@ function parseSubscribeData(arr){
     }
 }
 
+function noCustomData(type){
+    var cRouteList
+    switch(type){
+        case 'Subscribe':
+            cRouteList = document.getElementById('cRoutePackages')
+            break
+        case 'Custom':
+            cRouteList = document.getElementById('cCRoutePackages')
+            break
+        default:
+            cRouteList = null
+            alterToast('error', getLang("IllegalAccess"))
+            break
+    }
+    if(cRouteList != null){
+        var tr = document.createElement("tr")
+        var td = document.createElement("td")
+        td.innerHTML = `<a class="btn btn-danger btn-xs">${getLang("noDataFound")}</a>`
+        tr.appendChild(td)
+        var td = document.createElement("td")
+        td.innerHTML = ''
+        tr.appendChild(td)
+        var td = document.createElement("td")
+        td.innerHTML = ''
+        tr.appendChild(td)
+        cRouteList.appendChild(tr)
+    }
+}
 
+function cleanSubscribeTab(){
+    document.getElementById('SubscribeName').value = ""
+    document.getElementById('SubscribeUrl').value = ""
+}

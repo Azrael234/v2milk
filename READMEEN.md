@@ -59,6 +59,7 @@ npm install -g electron-packager
 * <a href='https://ko-fi.com/U7U7K54E' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://az743702.vo.msecnd.net/cdn/kofi4.png?v=f' border='0' alt='Buy Me a Coffee' /></a>
 
 # Update Log
+* 0.0.6 Bug fix, UI Improvements, Changed Alert() to Toasts
 * 0.0.5 Fixed 3.46, improved subscribe
 * 0.0.4 Added support for Subscribe(V = 2)
 * 0.0.3 Bug fix, UI Improvements, Added power monitor, added CSP

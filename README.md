@@ -64,6 +64,7 @@ npm install -g electron-packager
 * <a href='https://ko-fi.com/U7U7K54E' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://az743702.vo.msecnd.net/cdn/kofi4.png?v=f' border='0' alt='Buy Me a Coffee' /></a>
 
 # 更新日志
+* 0.0.6 少量Bug修复，UI优化，修改alert弹窗为toast
 * 0.0.5 修正3.46带来的启动问题，优化订阅
 * 0.0.4 加入了自定义节点部分的订阅支持(V = 2)
 * 0.0.3 修正少量bug，优化UI，加入系统休眠监控，加入CSP

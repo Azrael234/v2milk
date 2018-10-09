@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'">
     <title>V2Milk</title>
     <!-- CSS -->
     <link rel="stylesheet" href="assets/css/app.css">
@@ -213,7 +212,23 @@
                                 </a>
                             </div>
                             <div class="row my-3">
-                                 <div class="col-md-12">
+                                <div class="col-md-6">
+                                    <div class="form-row">
+                                        <div class="form-group col-md-12">
+                                            <table class="table table-striped">
+                                                <thead>
+                                                        <th id="HCCRoute">Route</th>
+                                                        <th id="HCCStatus">Status</th>
+                                                        <th id="HCCAction">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="cCRoutePackages">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
                                     <div class="form-row">
                                         <div class="form-group col-md-12">
                                             <table class="table table-striped">
@@ -228,7 +243,7 @@
                                             </table>
                                         </div>
                                     </div>
-                                 </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -330,16 +345,59 @@
                                         <div class="pt-5 pb-2 pl-5 pr-5">
                                             <h2 class="font-weight-normal"><div id="CustomInfo">Custom...</div></h2>
                                             <span class="s-48 text-primary">
-                                                <div class="form-group" style="float:left;width:90%;">
-                                                    <input type="text" id="111" class="form-control form-control-lg" placeholder="In Prpgress">
+                                                <div class="form-group" style="float:left;width:90%;margin-top:10px;">
+                                                    <div class="row" style="margin-right:0px;margin-left:0px;">
+                                                        <input type="text" id="CustomRemarks" class="col-md-6 form-control form-control-sm" placeholder="Remarks...">
+                                                        <input type="text" id="CustomUUID" style="left:20px;" class="col-md-6 form-control form-control-sm" placeholder="UUID...">
+                                                    </div>
                                                     <p></p>
-                                                    <input type="submit" id="V2Milk-customSubmit" class="btn btn-primary btn-lg btn-block" value="Submit">
+                                                    <div class="row" style="margin-right:0px;margin-left:0px;">
+                                                        <input type="text" id="CustomAddress" class="col-md-6 form-control form-control-sm" placeholder="Address...">
+                                                        <input type="text" id="CustomPort" class="col-md-6 form-control form-control-sm" style="left:20px;" placeholder="Port...">
+                                                    </div>
+                                                    <p></p>
+                                                    <div class="row" style="margin-right:0px;margin-left:0px;">
+                                                        <select id="CustomNetwork" class="col-md-6 form-control form-control-sm">
+                                                            <option selected/>tcp</option>
+                                                            <option>kcp</option>
+                                                            <option>ws</option>
+                                                            <option>h2</option>
+                                                        </select>
+                                                        <input type="text" id="CustomAlterID" class="col-md-6 form-control form-control-sm" style="left:20px;" placeholder="AlterID...">
+                                                    </div>
+                                                    <p></p>
+                                                    <div class="row" style="margin-right:0px;margin-left:0px;">
+                                                        <input type="text" id="CustomPath" class="col-md-6 form-control form-control-sm" placeholder="Path...">
+                                                        <input type="text" id="CustomHost" class="col-md-6 form-control form-control-sm" style="left:20px;" placeholder="Host...">
+                                                    </div>
+                                                    <p></p>
+                                                    <div class="row" style="margin-right:0px;margin-left:0px;">
+                                                        <label for="CustomType" style="font-size:20px;font-weight:300;padding:unset;margin:unset;" class="col-md-2" id="CustomTypeDecs">Type:</label>
+                                                        <select id="CustomType" class="col-md-4 form-control form-control-sm">
+                                                            <option selected/>none</option>
+                                                            <option>http</option>
+                                                            <option>srtp</option>
+                                                            <option>utp</option>
+                                                            <option>wechat-video</option>
+                                                            <option>dtls</option>
+                                                        </select>
+                                                        <label for="CustomSecurity" style="left:20px;font-size:20px;font-weight:300;padding:unset;margin:unset;" class="col-md-2" id="CustomSecurityDecs">Security:</label>
+                                                        <select id="CustomSecurity" style="left:20px;" class="col-md-4 form-control form-control-sm">
+                                                            <option selected/></option>
+                                                            <option/>TLS</option>
+                                                        </select>
+                                                    </div>
+                                                    <p></p>
+                                                    <div class="row" style="margin-right:0px;margin-left:0px;">
+                                                        <p class="col-md-6"></p>
+                                                        <input type="submit" style="left:20px;" id="V2Milk-customSubmit" class="col-md-6 btn btn-primary btn-sm btn-block" value="Submit">
+                                                    </div>
                                                 </div>
                                             </span>
                                             <div class="float-right">
                                                 <span class="icon icon-key5 s-48"></span>
                                             </div>
-                                            <div style="height:150px;"></div>
+                                            <div style="height:320px;"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -348,10 +406,10 @@
                                         <div class="pt-5 pb-2 pl-5 pr-5">
                                             <h2 class="font-weight-normal"><div id="SubscribeInfo">Subscribe...</div></h2>
                                             <span class="s-48 text-primary">
-                                                <div class="form-group" style="float:left;width:90%;">
-                                                    <input type="text" id="SubscribeName" class="form-control form-control-lg" placeholder="Name...">
+                                                <div class="form-group" style="float:left;width:90%;margin-top:10px;">
+                                                    <input type="text" id="SubscribeName" class="form-control form-control-sm" placeholder="Name...">
                                                     <p></p>
-                                                    <input type="text" id="SubscribeUrl" class="form-control form-control-lg" placeholder="Url...">
+                                                    <input type="text" id="SubscribeUrl" class="form-control form-control-sm" placeholder="Url...">
                                                     <p></p>
                                                     <input type="submit" id="V2Milk-subscribSubmit" class="btn btn-primary btn-lg btn-block" value="Submit">
                                                 </div>
@@ -359,7 +417,7 @@
                                             <div class="float-right">
                                                 <span class="icon icon-laptop_mac s-48"></span>
                                             </div>
-                                            <div style="height:225px;"></div>
+                                            <div style="height:190px;"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -378,13 +436,13 @@
                                     <span class="text-primary">
                                         <div class="form-group" style="float:left;width:90%;font-size:17px;">
                                             <label for="Socks5Port" class="col-form-label" id="Socks5PortDecs">Socks5 Port</label>
-                                            <input type="text" id="Socks5Port" class="form-control form-control-lg" placeholder="Socks5Port">
+                                            <input type="text" id="Socks5Port" class="form-control form-control-sm" placeholder="Socks5Port">
                                             <p></p>
                                             <label for="Socks5Port" class="col-form-label" id="HttpPortDecs">HTTP Port</label>
-                                            <input type="text" id="HttpPort" class="form-control form-control-lg" placeholder="HttpPort">
+                                            <input type="text" id="HttpPort" class="form-control form-control-sm" placeholder="HttpPort">
                                             <p></p>
                                             <label for="Socks5Port" class="col-form-label" id="PACPortDecs">PAC Port</label>
-                                            <input type="text" id="PACPort" class="form-control form-control-lg" placeholder="PACPort">
+                                            <input type="text" id="PACPort" class="form-control form-control-sm" placeholder="PACPort">
                                             <p></p>
                                             <input type="submit" id="V2Milk-SettingSubmit" class="btn btn-primary btn-lg btn-block" value="Submit">
                                         </div>
@@ -392,7 +450,7 @@
                                     <div class="float-right">
                                         <span class="icon icon-settings2 s-48"></span>
                                     </div>
-                                    <div style="height:400px;"></div>
+                                    <div style="height:350px;"></div>
                                 </div>
                             </div>
                         </div>
@@ -402,6 +460,8 @@
         </div>
     </div>
 </div>
+
+<button style="visibility:hidden;position:absolute;" class="toast-action" id="alertToastButton"></button>
 
 <script src="assets/js/app.js"></script>
 <script>

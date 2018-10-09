@@ -1,6 +1,6 @@
 {
   "name": "V2Milk",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Very 2 Milk",
   "main": "src/main/main.js",
   "scripts": {
