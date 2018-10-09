@@ -77,7 +77,6 @@
 		"HSysLog" : "系统日志",
 		"HV2Log" : "V2Ray日志",
 		"QRCode" : "二维码",
-
 		"SystemSettings" : "设置",
 		"Socks5PortDecs" : "Socks5端口：",
 		"HttpPortDecs" : "HTTP端口：",
@@ -88,6 +87,7 @@
 		"CustomSubmit" : "保存设置",
 		"Subscribe" : "订阅",
 		"SubscribeInfo" : "订阅信息",
+		"SubscribeName" : "订阅名字",
 		"SubscribeUrl" : "订阅地址(http://或https://)",
 		"SubscribSubmit" : "保存订阅",
 		"CustomConfigSaved" : "已经生成了初始化的自定义节点配置文件啦w",
@@ -97,6 +97,7 @@
 		"CustomConfigReadFailed" : "自定义节点配置文件读取失败。。。\n错误是：%error",
 		"CustomConfigSavedFailed" : "自定义节点配置文件保存失败。。。\n错误是：%error",
 
+		"removeSubscribeURL" : "删除订阅",
 
 		"ConnectPACMode" : "PAC连接",
 		"ConnectGlobalMode" : "全局连接",
@@ -190,7 +191,6 @@
 		"HSysLog" : "System Log",
 		"HV2Log" : "V2Ray Log",
 		"QRCode" : "QRCode",
-
 		"SystemSettings" : "System Settings",
 		"Socks5PortDecs" : "Socks5 Port:",
 		"HttpPortDecs" : "HTTP Port:",
@@ -201,6 +201,7 @@
 		"CustomSubmit" : "Save",
 		"Subscribe" : "Subscribe",
 		"SubscribeInfo" : "Subscribe Info",
+		"SubscribeName" : "Subscribe Name",
 		"SubscribeUrl" : "Subscribe URL(http:// or https://)",
 		"SubscribSubmit" : "Save",
 		"CustomConfigSaved" : "Loaded default custom config~",
@@ -209,6 +210,8 @@
 		"CustomConfigUpdated" : "Updated custom config~",
 		"CustomConfigReadFailed" : "Load custom config failed...\nError: %error",
 		"CustomConfigSavedFailed" : "Save custom config failed...\nError: %error",
+
+		"removeSubscribeURL" : "Remove",
 
 		"ConnectPACMode" : "PAC Mode",
 		"ConnectGlobalMode" : "Global Mode",

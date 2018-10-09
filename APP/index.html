@@ -10,6 +10,9 @@
     <!-- CSS -->
     <link rel="stylesheet" href="assets/css/app.css">
     <style>
+        ::selection {
+            background:transparent;
+        }
         .loader {
             position: fixed;
             left: 0;
@@ -105,9 +108,6 @@
                     </li>
                     <li>
                         <a class="nav-link" id="v-pills-7-tab" data-toggle="pill" href="#v-pills-7"><div id="HSystemSettings">System Settings</div></a>
-                    </li>
-                    <li>
-                        <a class="nav-link" id="v-pills-6-tab" data-toggle="pill" href="#v-pills-6">Test</a>
                     </li>
                 </ul>
                 <a class="btn-fab fab-right btn-danger">
@@ -206,7 +206,10 @@
                             <div class="card-title">
                                 <h5 id="HCSelectRoute">Choose Route</h5>
                                 <a class="btn-fab fab-right btn-primary" style="top:30px;right:50px;">
-                                    <i class="icon icon-plus" id="AddCustomRoute"></i>
+                                    <i class="icon icon-plus" id="addCustomRoute"></i>
+                                </a>
+                                <a class="btn-fab fab-right btn-warning" style="top:30px;right:100px;">
+                                    <i class="icon icon-refresh" id="refreshSubscribes"></i>
                                 </a>
                             </div>
                             <div class="row my-3">
@@ -346,6 +349,8 @@
                                             <h2 class="font-weight-normal"><div id="SubscribeInfo">Subscribe...</div></h2>
                                             <span class="s-48 text-primary">
                                                 <div class="form-group" style="float:left;width:90%;">
+                                                    <input type="text" id="SubscribeName" class="form-control form-control-lg" placeholder="Name...">
+                                                    <p></p>
                                                     <input type="text" id="SubscribeUrl" class="form-control form-control-lg" placeholder="Url...">
                                                     <p></p>
                                                     <input type="submit" id="V2Milk-subscribSubmit" class="btn btn-primary btn-lg btn-block" value="Submit">
@@ -354,7 +359,7 @@
                                             <div class="float-right">
                                                 <span class="icon icon-laptop_mac s-48"></span>
                                             </div>
-                                            <div style="height:150px;"></div>
+                                            <div style="height:225px;"></div>
                                         </div>
                                     </div>
                                 </div>

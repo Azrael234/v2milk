@@ -125,7 +125,7 @@ function createWindow() {
     if (isDev) {
         mainWindow = new BrowserWindow(
             {
-                width: 1200,
+                width: 1400,
                 height: 650,
                 resizable: false,
                 maximizable: false,
@@ -327,9 +327,16 @@ ipc.on('onClickControl',function(event, element, data) {
             customSubscribes.push(data)
             saveUpdateCustomConfig()
             windowAlert(getLang("CustomConfigUpdated"))
+            jumpToCustom()
             break
         case "getCustomConfigs":
             getCustomConfigs()
+            break
+        case "removeSubscribeURL":
+            customSubscribes = removeArrayItem(customSubscribes, data)
+            saveUpdateCustomConfig()
+            windowAlert(getLang("CustomConfigUpdated"))
+            event.sender.send("onMainCallExec", "reloadCustom")
             break
         default:
             webContentsSend("V2Ray-log", getLang("IllegalAccess"))
@@ -646,6 +653,12 @@ function saveConfig(node){
                     "serverName" : nodearr[6],
                     "allowInsecure" : false
                 },
+                "httpSettings" : {
+                    "path" : nodearr[7],
+                    "host" : [
+                        nodearr[6]
+                    ]
+                },
                 "kcpSettings" : {
                     "header" : {
                         "type" : nodearr[4]
@@ -765,7 +778,7 @@ function startV2RayProcess(arg, node){
         }else if(data.indexOf("failed to load config:") > -1 ){
             webContentsSend("V2Ray-status", data)
             webContentsSend("V2Ray-jsonStatus", JSON.stringify({"status":"error","message":getLang("V2RayConfigFileError")}))
-        }else if(data.indexOf("Core: V2Ray") > -1 ){
+        }else if(data.toLowerCase().indexOf("started") > -1 ){
             webContentsSend("V2Ray-status", data)
             webContentsSend("V2Ray-log", getLang("V2RayStarted"))
             updateConnectedRoute(node, arg)
@@ -1116,6 +1129,17 @@ function replaceAll(str, FindText, RepText) {
     return str.replace(regExp, RepText)
 }
 
+function removeArrayItem(arr, item){
+    var newarr = arr.slice(0)
+    for(var i=0; i < newarr.length; i++){
+        if(newarr[i] == item){
+            newarr.splice(i, 1)
+            i--
+        }
+    }
+    return newarr
+}
+
 function getAvailableLang(){
     var menu = []
     for(var i in LangConfig){
@@ -1220,7 +1244,11 @@ function parseSubscribeUrlInfo(url){
         "url" : url,
         "datas" : []
     }
-    request(url, function (error, response, body) {
+    if(url.indexOf("|") >= 0){
+        urll = url.split("|")
+        url = urll[1]
+    }
+    request({url: url, timeout: 3000}, function (error, response, body) {
         if (!error && response.statusCode == 200) {
             if(isBase64(body)){
                 var rdata = new Buffer(body, 'base64').toString()
@@ -1284,6 +1312,26 @@ function jumpToMain(){
             "v-pills-7|set|tab-pane animated fadeInUpShort go",
             "v-pills-1-tab|set|nav-link active",
             "v-pills-2-tab|set|nav-link",
+            "v-pills-3-tab|set|nav-link",
+            "v-pills-4-tab|set|nav-link",
+            "v-pills-7-tab|set|nav-link"
+        ]
+    }
+    webContentsSend("onMainFrameChange", JSON.stringify(logAction))
+}
+
+function jumpToCustom(){
+    var logAction = {
+        "actions" : [
+            "v-pills-1|set|tab-pane animated fadeInUpShort go",
+            "v-pills-2|set|tab-pane animated fadeInUpShort go show active",
+            "v-pills-3|set|tab-pane animated fadeInUpShort go",
+            "v-pills-4|set|tab-pane animated fadeInUpShort go",
+            "v-pills-5|set|tab-pane animated fadeInUpShort go",
+            "v-pills-6|set|tab-pane animated fadeInUpShort go",
+            "v-pills-7|set|tab-pane animated fadeInUpShort go",
+            "v-pills-1-tab|set|nav-link",
+            "v-pills-2-tab|set|nav-link active",
             "v-pills-3-tab|set|nav-link",
             "v-pills-4-tab|set|nav-link",
             "v-pills-7-tab|set|nav-link"

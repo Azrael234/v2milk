@@ -15,7 +15,8 @@ const milkstop = document.getElementById('V2Milk-stopServers')
 const milkrebootPAC = document.getElementById('V2Milk-rebootPACServer')
 const milkv2logdown = document.getElementById('V2LogToBottom')
 const milkv2statusdown = document.getElementById('V2StatusToBottom')
-const milkAddCustomRoute = document.getElementById('AddCustomRoute')
+const milkaddCustomRoute = document.getElementById('addCustomRoute')
+const milkrefreshSubscribes = document.getElementById('refreshSubscribes')
 const btnlog = document.getElementById('V2log')
 const btnstatus = document.getElementById('V2Status')
 const LangFile = path.join(path.dirname(__dirname), "lang", "lang.json")
@@ -72,16 +73,13 @@ function initHtml(){
     document.getElementById('HttpPortDecs').innerHTML = getLang("HttpPortDecs")
     document.getElementById('PACPortDecs').innerHTML = getLang("PACPortDecs")
     document.getElementById('V2Milk-SettingSubmit').value = getLang("SettingSubmit")
-
-
     document.getElementById('CustomConfig').innerHTML = getLang("CustomConfig")
     document.getElementById('Subscribe').innerHTML = getLang("Subscribe")
     document.getElementById('SubscribeInfo').innerHTML = getLang("SubscribeInfo")
+    document.getElementById('SubscribeName').placeholder = getLang("SubscribeName")
     document.getElementById('SubscribeUrl').placeholder = getLang("SubscribeUrl")
     milkcustomSubmit.value = getLang("CustomSubmit")
     milksubscribSubmit.value = getLang("SubscribSubmit")
-
-
     document.getElementById('emailF').placeholder = getLang("Email")
     document.getElementById('passwordF').placeholder = getLang("Password")
     document.getElementById('V2Milk-submit').value = getLang("Submit")
@@ -135,7 +133,7 @@ function initEventListeners(){
         ipc.send('onClickControl', 'onV2RayrebootPACServer', '')
     })
 
-    milkAddCustomRoute.addEventListener('click', () => {
+    milkaddCustomRoute.addEventListener('click', () => {
         var addAction = {
             "actions" : [
                 "v-pills-6|set|tab-pane animated fadeInUpShort go show active",
@@ -155,10 +153,16 @@ function initEventListeners(){
         ipc.send('onClickControl', 'callRendererFrameChange', JSON.stringify(addAction))
     })
 
+    milkrefreshSubscribes.addEventListener('click', () => {
+        document.getElementById('cRoutePackages').innerHTML = ""
+        initCustom()
+    })
+
     milksubscribSubmit.addEventListener('click', () => {
+        var name = document.getElementById('SubscribeName').value
         var url = document.getElementById('SubscribeUrl').value
-        if(isLegalURL(url)){
-            ipc.send('onClickControl', 'onSaveSubscribeUrl', url)
+        if(isLegalURL(url) && name != ""){
+            ipc.send('onClickControl', 'onSaveSubscribeUrl', `${name}|${url}`)
         }else{
             alert(getLang("IllegalData"))
         }
@@ -168,7 +172,7 @@ function initEventListeners(){
 function initipcEvents(){
     ipc.on("onMainCall", function(event, message) {
         alert(message)
-    });
+    })
 
     ipc.on("onMainCallExec", function(event, action, message) {
         switch(action){
@@ -177,14 +181,17 @@ function initipcEvents(){
                 loadPackages(message)
                 break
             case 'parseSubscribeData':
-            console.log(1, message)
                 parseSubscribeData(message)
+                break
+            case 'reloadCustom':
+                document.getElementById('cRoutePackages').innerHTML = ""
+                initCustom()
                 break
             default:
                 console.log(getLang("IllegalAccess"))
                 break
         }
-    });
+    })
 
     ipc.on("savedDataLogin", function(event) {
         var uuu = document.getElementById('emailF').value
@@ -368,16 +375,23 @@ function isLegalURL(str){
 function parseSubscribeData(arr){
     arr = JSON.parse(arr)
     var cRouteList = document.getElementById('cRoutePackages')
+    var url = arr.url
+    var name = arr.url
+    if(url.indexOf("|") >= 0){
+        var urll = url.split("|")
+        url = urll[1]
+        name = urll[0]
+    }
     if(arr.datas.length > 0){
         var tr = document.createElement("tr")
         var td = document.createElement("td")
-        td.innerHTML = arr.url
+        td.innerHTML = name
         tr.appendChild(td)
         var td = document.createElement("td")
-        td.innerHTML = getLang("success")
+        td.innerHTML = `<a class="btn btn-success btn-xs">${getLang("success")}</a>`
         tr.appendChild(td)
         var td = document.createElement("td")
-        td.innerHTML = ''
+        td.innerHTML = `<button type="button" class="btn btn-danger btn-xs" onclick="onClickControl('removeSubscribeURL','${arr.url}')">${getLang("removeSubscribeURL")}</button>`
         tr.appendChild(td)
         cRouteList.appendChild(tr)
         for (var i = 0; i < arr.datas[0].length; i++) {
@@ -398,13 +412,13 @@ function parseSubscribeData(arr){
     }else{
         var tr = document.createElement("tr")
         var td = document.createElement("td")
-        td.innerHTML = arr.url
+        td.innerHTML = name
         tr.appendChild(td)
         var td = document.createElement("td")
-        td.innerHTML = getLang("error")
+        td.innerHTML = `<a class="btn btn-danger btn-xs">${getLang("error")}</a>`
         tr.appendChild(td)
         var td = document.createElement("td")
-        td.innerHTML = ''
+        td.innerHTML = `<button type="button" class="btn btn-danger btn-xs" onclick="onClickControl('removeSubscribeURL','${arr.url}')">${getLang("removeSubscribeURL")}</button>`
         tr.appendChild(td)
         cRouteList.appendChild(tr)
     }
