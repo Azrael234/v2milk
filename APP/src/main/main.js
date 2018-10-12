@@ -661,7 +661,7 @@ function saveConfig(node){
                 },
                 "kcpSettings" : {
                     "header" : {
-                        "type" : nodearr[4]
+                        "type" : nodearr[4] ? nodearr[4] : "none"
                     },
                     "mtu" : 1350,
                     "congestion" : false,
@@ -763,8 +763,6 @@ function startV2RayProcess(arg, node){
     setProxy(arg)
     serverMode = arg
     if(isMac){
-        console.log(path.join(__libname, 'extra/v2ray-core/MacOS/v2ray'))
-        console.log(path.join(appConfigDir, "config.json"))
         V2RayServer = cps.execFile(path.join(__libname, 'extra/v2ray-core/MacOS/v2ray'), ['-config', path.join(appConfigDir, "config.json")])
     }else if(isLinux){
         //V2RayServer = cps.execFile(path.join(__libname, 'extra/v2ray-core/Linux/v2ray'), ['-config', path.join(appConfigDir, "config.json")])
@@ -1107,7 +1105,7 @@ function setTrayIcon() {
 function renderTray() {
     tray = new Tray(nativeImage.createEmpty())
     updateTray()
-    tray.on((isMac || isWin) ? 'double-click' : 'click', e => { console.log('clicked') })
+    //tray.on((isMac || isWin) ? 'double-click' : 'click', e => { console.log('clicked') })
 }
 
 //System Lang Functions
