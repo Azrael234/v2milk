@@ -765,7 +765,7 @@ function startV2RayProcess(arg, node){
     if(isMac){
         V2RayServer = cps.execFile(path.join(__libname, 'extra/v2ray-core/MacOS/v2ray'), ['-config', path.join(appConfigDir, "config.json")])
     }else if(isLinux){
-        //V2RayServer = cps.execFile(path.join(__libname, 'extra/v2ray-core/Linux/v2ray'), ['-config', path.join(appConfigDir, "config.json")])
+        V2RayServer = cps.execFile(path.join(__libname, 'extra/v2ray-core/Linux/v2ray'), ['-config', path.join(appConfigDir, "config.json")])
     }else if(isWin){
         V2RayServer = cps.execFile(path.join(__libname, 'extra/v2ray-core/Windows/v2ray'), ['-config', path.join(appConfigDir, "config.json")])
     }
@@ -811,7 +811,9 @@ function startV2RayProcess(arg, node){
 function killV2RayProcess(){
     return new Promise((resolve) => {
         setProxy("OFF")
-        V2RayServer.kill()
+        if(V2RayServer != null){
+            V2RayServer.kill()
+        }
         setTimeout(() => resolve(), 2000)
     }).catch(error=>{
         return error
@@ -941,8 +943,11 @@ function rebootServer(mode, node){
                     closeFlag = false
                 }).catch(error=>{
                     serverConnected = null
-                    webContentsSend("V2Ray-log", getLang("ConfigWroteFailed", [`%error|${error}`]))
+                    webContentsSend("V2Ray-log", getLang("UnknownErrorDetailed", [`%error|${error}`]))
                 })
+            }).catch(error=>{
+                serverConnected = null
+                webContentsSend("V2Ray-log", getLang("ConfigWroteFailed", [`%error|${error}`]))
             })
         }).catch(error=>{
             webContentsSend("V2Ray-log", getLang("UnknownErrorDetailed", [`%error|${error}`]))
