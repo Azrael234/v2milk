@@ -86,6 +86,17 @@ function initHtml(){
     document.getElementById('emailF').placeholder = getLang("Email")
     document.getElementById('passwordF').placeholder = getLang("Password")
     document.getElementById('V2Milk-submit').value = getLang("Submit")
+    document.getElementById('CustomInfo').innerHTML = getLang("CustomInfo")
+    document.getElementById('CustomRemarksDecs').innerHTML = getLang("CustomRemarks")
+    document.getElementById('CustomUUIDDecs').innerHTML = getLang("CustomUUID")
+    document.getElementById('CustomAddressDecs').innerHTML = getLang("CustomAddress")
+    document.getElementById('CustomPortDecs').innerHTML = getLang("CustomPort")
+    document.getElementById('CustomNetworkDecs').innerHTML = getLang("CustomNetwork")
+    document.getElementById('CustomAlterIDDecs').innerHTML = getLang("CustomAlterID")
+    document.getElementById('CustomPathDecs').innerHTML = getLang("CustomPath")
+    document.getElementById('CustomHostDecs').innerHTML = getLang("CustomHost")
+    document.getElementById('CustomTypeDecs').innerHTML = getLang("CustomType")
+    document.getElementById('CustomSecurityDecs').innerHTML = getLang("CustomSecurity")
 }
 
 function initSystemSettings(){

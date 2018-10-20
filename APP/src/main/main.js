@@ -272,12 +272,12 @@ ipc.on('onClickControl',function(event, element, data) {
             event.sender.send("onMainFrameChange", JSON.stringify(loginAction))
             break
         case "onlogin":
-            var dataa = {'data': PHP.uc_authcode(data, "ENCODE", ucKey)}
+            var dataa = {'data': PHP.uc_authcode(data, "ENCODE", global.ucKey)}
             var content = qs.stringify(dataa);
             sendRequest(event, content, data)
             break
         case "onloginTry":
-            var dataa = {'data': PHP.uc_authcode(data, "ENCODE", ucKey)}
+            var dataa = {'data': PHP.uc_authcode(data, "ENCODE", global.ucKey)}
             var content = qs.stringify(dataa);
             sendRequest(event, content, data, true)
             break
@@ -358,7 +358,7 @@ function sendRequest(event, content, upa, nolog = false){
 }
 
 function processData(event, data, upa, nolog = false){
-    data = PHP.uc_authcode(PHP.licenseDecodePart(data, licKey), "DECODE", ucKey)
+    data = PHP.uc_authcode(PHP.licenseDecodePart(data, global.licKey), "DECODE", global.ucKey)
     try{
         var dataa = JSON.parse(data);
         if(dataa.result == "success"){

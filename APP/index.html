@@ -347,32 +347,40 @@
                                             <span class="s-48 text-primary">
                                                 <div class="form-group" style="float:left;width:90%;margin-top:10px;">
                                                     <div class="row" style="margin-right:0px;margin-left:0px;">
-                                                        <input type="text" id="CustomRemarks" class="col-md-6 form-control form-control-sm" placeholder="Remarks...">
-                                                        <input type="text" id="CustomUUID" style="left:20px;" class="col-md-6 form-control form-control-sm" placeholder="UUID...">
+                                                        <div for="CustomRemarks" style="font-size:20px;font-weight:300;padding:unset;margin:unset;" class="col-md-2" id="CustomRemarksDecs">Remarks...</div>
+                                                        <input type="text" id="CustomRemarks" class="col-md-4 form-control form-control-sm" placeholder="Route">
+                                                        <div for="CustomUUID" style="left:20px;font-size:20px;font-weight:300;padding:unset;margin:unset;" class="col-md-2" id="CustomUUIDDecs">UUID:</div>
+                                                        <input type="text" id="CustomUUID" style="left:20px;" class="col-md-4 form-control form-control-sm" placeholder="23333333-3333-3333-3333-333333333333">
                                                     </div>
                                                     <p></p>
                                                     <div class="row" style="margin-right:0px;margin-left:0px;">
-                                                        <input type="text" id="CustomAddress" class="col-md-6 form-control form-control-sm" placeholder="Address...">
-                                                        <input type="text" id="CustomPort" class="col-md-6 form-control form-control-sm" style="left:20px;" placeholder="Port...">
+                                                        <div for="CustomAddress" style="font-size:20px;font-weight:300;padding:unset;margin:unset;" class="col-md-2" id="CustomAddressDecs">Address:</div>
+                                                        <input type="text" id="CustomAddress" class="col-md-4 form-control form-control-sm" placeholder="127.0.0.1">
+                                                        <div for="CustomPort" style="left:20px;font-size:20px;font-weight:300;padding:unset;margin:unset;" class="col-md-2" id="CustomPortDecs">Port:</div>
+                                                        <input type="text" id="CustomPort" class="col-md-4 form-control form-control-sm" style="left:20px;" placeholder="2333">
                                                     </div>
                                                     <p></p>
                                                     <div class="row" style="margin-right:0px;margin-left:0px;">
-                                                        <select id="CustomNetwork" class="col-md-6 form-control form-control-sm">
+                                                        <div for="CustomNetwork" style="font-size:20px;font-weight:300;padding:unset;margin:unset;" class="col-md-2" id="CustomNetworkDecs">Network:</div>
+                                                        <select id="CustomNetwork" class="col-md-4 form-control form-control-sm">
                                                             <option selected/>tcp</option>
                                                             <option>kcp</option>
                                                             <option>ws</option>
                                                             <option>h2</option>
                                                         </select>
-                                                        <input type="text" id="CustomAlterID" class="col-md-6 form-control form-control-sm" style="left:20px;" placeholder="AlterID...">
+                                                        <div for="CustomAlterID" style="left:20px;font-size:20px;font-weight:300;padding:unset;margin:unset;" class="col-md-2" id="CustomAlterIDDecs">AlterID:</div>
+                                                        <input type="text" id="CustomAlterID" class="col-md-4 form-control form-control-sm" style="left:20px;" placeholder="64">
                                                     </div>
                                                     <p></p>
                                                     <div class="row" style="margin-right:0px;margin-left:0px;">
-                                                        <input type="text" id="CustomPath" class="col-md-6 form-control form-control-sm" placeholder="Path...">
-                                                        <input type="text" id="CustomHost" class="col-md-6 form-control form-control-sm" style="left:20px;" placeholder="Host...">
+                                                        <div for="CustomPath" style="font-size:20px;font-weight:300;padding:unset;margin:unset;" class="col-md-2" id="CustomPathDecs">Path:</div>
+                                                        <input type="text" id="CustomPath" class="col-md-4 form-control form-control-sm" placeholder="">
+                                                        <div for="CustomHost" style="left:20px;font-size:20px;font-weight:300;padding:unset;margin:unset;" class="col-md-2" id="CustomHostDecs">Host:</div>
+                                                        <input type="text" id="CustomHost" class="col-md-4 form-control form-control-sm" style="left:20px;" placeholder="">
                                                     </div>
                                                     <p></p>
                                                     <div class="row" style="margin-right:0px;margin-left:0px;">
-                                                        <label for="CustomType" style="font-size:20px;font-weight:300;padding:unset;margin:unset;" class="col-md-2" id="CustomTypeDecs">Type:</label>
+                                                        <div for="CustomType" style="font-size:20px;font-weight:300;padding:unset;margin:unset;" class="col-md-2" id="CustomTypeDecs">Type:</div>
                                                         <select id="CustomType" class="col-md-4 form-control form-control-sm">
                                                             <option selected/>none</option>
                                                             <option>http</option>
@@ -381,7 +389,7 @@
                                                             <option>wechat-video</option>
                                                             <option>dtls</option>
                                                         </select>
-                                                        <label for="CustomSecurity" style="left:20px;font-size:20px;font-weight:300;padding:unset;margin:unset;" class="col-md-2" id="CustomSecurityDecs">Security:</label>
+                                                        <div for="CustomSecurity" style="left:20px;font-size:20px;font-weight:300;padding:unset;margin:unset;" class="col-md-2" id="CustomSecurityDecs">Security:</div>
                                                         <select id="CustomSecurity" style="left:20px;" class="col-md-4 form-control form-control-sm">
                                                             <option selected/></option>
                                                             <option/>TLS</option>
