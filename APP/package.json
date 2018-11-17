@@ -1,17 +1,19 @@
 {
   "name": "V2Milk",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "description": "Very 2 Milk",
   "main": "src/main/main.js",
   "scripts": {
     "start": "export NODE_ENV=noPack && electron .",
     "dev": "export NODE_ENV=Devv && electron .",
-    "startw": "set NODE_ENV=noPack&&electron .",
-    "devw": "set NODE_ENV=Devv&&electron .",
-    "closeWin" : "taskkill /im v2milk.exe /f",
-    "packageWin": "electron-packager . V2Milk --platform=win32 --win32metadata.CompanyName=V2Milk --win32metadata.ProductName=V2Milk --out V2MilkAPP --arch=x64 --app-copyright=V2Milk.com --app-version=0.1.0 --electron-version=2.0.8 --overwrite --asar --ignore=extra/ --icon V2Milk.ico --extra-resource=extra/",
-    "packageMac": "electron-packager . V2Milk --darwin --out V2MilkAPP --arch=x64 --app-version=0.0.1 --electron-version=2.0.8 --app-copyright='Copyright © 2018 V2Milk' --app-bundle-id=V2Milk --overwrite --asar --ignore=extra/ --icon V2Milk.icns --extra-resource=extra/",
-    "packageMacOnWin": "electron-packager . V2Milk --platform=darwin --out V2MilkAPP --arch=x64 --app-version=0.0.1 --electron-version=2.0.8 --app-copyright='Copyright © 2018 V2Milk' --app-bundle-id=V2Milk --overwrite --asar --ignore=extra/ --icon V2Milk.icns --extra-resource=extra/"
+    "dist:mac": "CSC_IDENTITY_AUTO_DISCOVERY=false DEBUG=electron-builder electron-builder --platform darwin",
+    "dist": "electron-builder .",
+    "dist:linux": "electron-builder --linux --ia32 --x64",
+    "dist:linux32": "electron-builder --linux --ia32",
+    "dist:linux64": "electron-builder --linux --x64",
+    "dist:win": "electron-builder --win --ia32 --x64",
+    "dist:win32": "electron-builder --win --ia32",
+    "dist:win64": "electron-builder --win --x64"
   },
   "repository": "https://V2Milk.icu",
   "keywords": [
@@ -20,7 +22,7 @@
   "author": "Suzume",
   "license": "Apache-2.0",
   "devDependencies": {
-    "electron": "^2.0.0"
+    "electron": "^3.0.6"
   },
   "dependencies": {
     "bluebird": "^3.5.2",
@@ -29,5 +31,40 @@
     "path": "^0.12.7",
     "request": "^2.87.0",
     "sudo-prompt": "^8.2.3"
+  },
+  "build": {
+    "appId": "com.LoliTech.V2Milk",
+    "productName": "V2Milk",
+    "asar": true,
+    "extraResources":  [
+      "extra"
+    ],
+    "artifactName": "${name}_${version}_${os}${arch}.${ext}",
+    "dmg": {
+      "title": "V2Milk",
+      "icon": "build/icon.icns",
+      "iconSize": 80
+    },
+    "linux": {
+      "target": [
+        "tar.gz",
+        "appImage",
+        "deb"
+      ]
+    },
+    "nsis": {
+      "runAfterFinish": false,
+      "deleteAppDataOnUninstall": true,
+      "allowToChangeInstallationDirectory": true,
+      "oneClick": false,
+      "installerLanguages": "zh_CN",
+      "language": 2052,
+      "perMachine": true,
+      "createDesktopShortcut": true
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    }
   }
 }

@@ -61,13 +61,30 @@ var isModeBeforeSleep
 var isRouteBeforeSleep
 var noHelper = null
 var closeFlag = false
-var customRoutes = []
 var customSubscribes = []
 
 function init(){
+    var template = [{
+        label: "Application",
+        submenu: [
+            { label: getLang("AboutApplication"), selector: "orderFrontStandardAboutPanel:" },
+            { type: "separator" },
+            { label: getLang("quit"), accelerator: "Command+Q", click: function() { app.quit(); }}
+        ]}, {
+        label: getLang("edit"),
+        submenu: [
+            { label: getLang("Undo"), accelerator: "CmdOrCtrl+Z", selector: "undo:" },
+            { label: getLang("Redo"), accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
+            { type: "separator" },
+            { label: getLang("Cut"), accelerator: "CmdOrCtrl+X", selector: "cut:" },
+            { label: getLang("Copy"), accelerator: "CmdOrCtrl+C", selector: "copy:" },
+            { label: getLang("Paste"), accelerator: "CmdOrCtrl+V", selector: "paste:" },
+            { label: getLang("SelectAll"), accelerator: "CmdOrCtrl+A", selector: "selectAll:" }
+        ]}
+    ];
     initProxyHelper().then(function(){
         initConfig().then(function(){
-            Menu.setApplicationMenu(null)
+            Menu.setApplicationMenu(Menu.buildFromTemplate(template))
             createWindow()
             renderTray()
             initCustomConfig().then(function(){
@@ -338,6 +355,16 @@ ipc.on('onClickControl',function(event, element, data) {
             windowAlert(getLang("CustomConfigUpdated"))
             event.sender.send("onMainCallExec", "reloadCustom")
             break
+        case "onRefreshSystemPackages":
+            var saveAction = {
+                "actions" : [
+                    `routePackages|innerHTML|`
+                ]
+            }
+            webContentsSend("onMainFrameChange", JSON.stringify(saveAction))
+            getSavedData()
+            windowAlert(getLang("UserInfoRefreshed"))
+            break
         default:
             webContentsSend("V2Ray-log", getLang("IllegalAccess"))
             break
@@ -402,7 +429,7 @@ function processData(event, data, upa, nolog = false){
         }
     }catch(error){
         if(!nolog){
-            event.sender.send("onMainCall", `Error: ${error}`)
+            event.sender.send("onMainCall", getLang("UnknownError") + `\n${error}`)
         }
     }
 }
@@ -1192,9 +1219,8 @@ function initCustomConfig(){
                     })
                 }
             }
-            customRoutes = defaultConfig.route
             customSubscribes = defaultConfig.subscribe
-            console.log(getLang("CustomConfigDone", [`%route|${customRoutes.length}`, `%subscribe|${customSubscribes.length}`]))
+            console.log(getLang("CustomConfigDone", [`%subscribe|${customSubscribes.length}`]))
         })
         return resolve()
     })
@@ -1202,7 +1228,6 @@ function initCustomConfig(){
 
 function getCustomDefaultConfig(){
     var defaultConfig = {
-        "route" : [],
         "subscribe" : [],
     }
     return defaultConfig
@@ -1222,7 +1247,6 @@ function saveCustomConfig(config){
 
 function saveUpdateCustomConfig(){
     var newConfig = {
-        "route" : customRoutes,
         "subscribe" : customSubscribes,
     }
     saveCustomConfig(newConfig).then(function(){
@@ -1233,18 +1257,7 @@ function saveUpdateCustomConfig(){
 }
 
 function getCustomConfigs(){
-    parseCustoms()
     parseSubscribes()
-}
-
-function parseCustoms(){
-    if(customRoutes.length > 0){
-        for (var i = customRoutes.length - 1; i >= 0; i--) {
-            //parseCustomRouteInfo(customRoutes[i])
-        }
-    }else{
-        webContentsSendAction("onMainCallExec", "noCustomData", "Custom", true)
-    }
 }
 
 function parseSubscribes(){
@@ -1269,13 +1282,13 @@ function parseSubscribeUrlInfo(url){
     request({url: url, timeout: 3000}, function (error, response, body) {
         if (!error && response.statusCode == 200) {
             if(isBase64(body)){
-                var rdata = new Buffer(body, 'base64').toString()
+                var rdata = Buffer.from(body, 'base64').toString()
                 rdata = rdata.split("\n")
                 var datas = []
                 for (var ii = rdata.length - 1; ii >= 0; ii--) {
                     var rdataa = replaceAll(rdata[ii], "vmess://", "")
                     if(isBase64(rdataa)){
-                        var irdata = new Buffer(rdataa, 'base64').toString()
+                        var irdata = Buffer.from(rdataa, 'base64').toString()
                         try{
                             irdata = JSON.parse(irdata)
                             if(typeof(irdata) == "object" && irdata){

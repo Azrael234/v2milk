@@ -100,13 +100,13 @@
                         <a class="nav-link" id="v-pills-2-tab" data-toggle="pill" href="#v-pills-2"><div id="HDIY">Custom Routes</div></a>
                     </li>
                     <li>
-                        <a class="nav-link" id="v-pills-3-tab" data-toggle="pill" href="#v-pills-3"><div id="HAboutUs">About Us</div></a>
-                    </li>
-                    <li>
                         <a class="nav-link" id="v-pills-4-tab" data-toggle="pill" href="#v-pills-4"><div id="HLog">System Log</div></a>
                     </li>
                     <li>
                         <a class="nav-link" id="v-pills-7-tab" data-toggle="pill" href="#v-pills-7"><div id="HSystemSettings">System Settings</div></a>
+                    </li>
+                    <li>
+                        <a class="nav-link" id="v-pills-3-tab" data-toggle="pill" href="#v-pills-3"><div id="HAboutUs">About Us</div></a>
                     </li>
                 </ul>
                 <a class="btn-fab fab-right btn-danger">
@@ -114,6 +114,9 @@
                 </a>
                 <a class="btn-fab fab-right btn-warning" style="right:100px;">
                     <i class="icon icon-refresh2" id="V2Milk-rebootPACServer"></i>
+                </a>
+                <a class="btn-fab fab-right btn-primary" style="right:160px;">
+                    <i class="icon icon-refresh" id="V2Milk-refreshSystemPackages"></i>
                 </a>
             </div>
         </div>
@@ -183,7 +186,6 @@
                                             <table class="table table-striped">
                                                 <thead>
                                                         <th id="HRoute">Route</th>
-                                                        <th id="HQRCode">QRCode</th>
                                                         <th id="HAction">Action</th>
                                                     </tr>
                                                 </thead>
@@ -212,23 +214,7 @@
                                 </a>
                             </div>
                             <div class="row my-3">
-                                <div class="col-md-6">
-                                    <div class="form-row">
-                                        <div class="form-group col-md-12">
-                                            <table class="table table-striped">
-                                                <thead>
-                                                        <th id="HCCRoute">Route</th>
-                                                        <th id="HCCStatus">Status</th>
-                                                        <th id="HCCAction">Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="cCRoutePackages">
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
+                                <div class="col-md-12">
                                     <div class="form-row">
                                         <div class="form-group col-md-12">
                                             <table class="table table-striped">
@@ -323,110 +309,24 @@
             <div class="tab-pane animated fadeInUpShort go" id="v-pills-6">
                 <div class="row my-3">
                     <div class="col-md-12">
-                        <div class="card-header bg-primary text-white b-b-light">
-                            <div class="row justify-content-end">
-                                <div class="col">
-                                    <ul id="CustomRouteTab1" role="tablist" class="nav nav-tabs card-header-tabs nav-material nav-material-white float-right">
-                                        <li class="nav-item">
-                                            <a class="nav-link active show" data-toggle="tab" href="#v-pills-tab1" role="tab" aria-controls="tab1" aria-expanded="true"
-                                               aria-selected="true"><div id="CustomConfig">Custom</div></a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link" data-toggle="tab" href="#v-pills-tab2" role="tab" aria-controls="tab2" aria-selected="false"><div id="Subscribe">Subscribe</div></a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
                         <div class="card-body no-p">
                             <div class="tab-content">
-                                <div class="tab-pane animated fadeIn show active" id="v-pills-tab1" role="tabpanel" aria-labelledby="v-pills-tab1">
-                                    <div class="bg-primary text-white lighten-2" style="border-radius:0 0 5px 5px;">
-                                        <div class="pt-5 pb-2 pl-5 pr-5">
-                                            <h2 class="font-weight-normal"><div id="CustomInfo">Custom...</div></h2>
-                                            <span class="s-48 text-primary">
-                                                <div class="form-group" style="float:left;width:90%;margin-top:10px;">
-                                                    <div class="row" style="margin-right:0px;margin-left:0px;">
-                                                        <div for="CustomRemarks" style="font-size:20px;font-weight:300;padding:unset;margin:unset;" class="col-md-2" id="CustomRemarksDecs">Remarks...</div>
-                                                        <input type="text" id="CustomRemarks" class="col-md-4 form-control form-control-sm" placeholder="Route">
-                                                        <div for="CustomUUID" style="left:20px;font-size:20px;font-weight:300;padding:unset;margin:unset;" class="col-md-2" id="CustomUUIDDecs">UUID:</div>
-                                                        <input type="text" id="CustomUUID" style="left:20px;" class="col-md-4 form-control form-control-sm" placeholder="23333333-3333-3333-3333-333333333333">
-                                                    </div>
-                                                    <p></p>
-                                                    <div class="row" style="margin-right:0px;margin-left:0px;">
-                                                        <div for="CustomAddress" style="font-size:20px;font-weight:300;padding:unset;margin:unset;" class="col-md-2" id="CustomAddressDecs">Address:</div>
-                                                        <input type="text" id="CustomAddress" class="col-md-4 form-control form-control-sm" placeholder="127.0.0.1">
-                                                        <div for="CustomPort" style="left:20px;font-size:20px;font-weight:300;padding:unset;margin:unset;" class="col-md-2" id="CustomPortDecs">Port:</div>
-                                                        <input type="text" id="CustomPort" class="col-md-4 form-control form-control-sm" style="left:20px;" placeholder="2333">
-                                                    </div>
-                                                    <p></p>
-                                                    <div class="row" style="margin-right:0px;margin-left:0px;">
-                                                        <div for="CustomNetwork" style="font-size:20px;font-weight:300;padding:unset;margin:unset;" class="col-md-2" id="CustomNetworkDecs">Network:</div>
-                                                        <select id="CustomNetwork" class="col-md-4 form-control form-control-sm">
-                                                            <option selected/>tcp</option>
-                                                            <option>kcp</option>
-                                                            <option>ws</option>
-                                                            <option>h2</option>
-                                                        </select>
-                                                        <div for="CustomAlterID" style="left:20px;font-size:20px;font-weight:300;padding:unset;margin:unset;" class="col-md-2" id="CustomAlterIDDecs">AlterID:</div>
-                                                        <input type="text" id="CustomAlterID" class="col-md-4 form-control form-control-sm" style="left:20px;" placeholder="64">
-                                                    </div>
-                                                    <p></p>
-                                                    <div class="row" style="margin-right:0px;margin-left:0px;">
-                                                        <div for="CustomPath" style="font-size:20px;font-weight:300;padding:unset;margin:unset;" class="col-md-2" id="CustomPathDecs">Path:</div>
-                                                        <input type="text" id="CustomPath" class="col-md-4 form-control form-control-sm" placeholder="">
-                                                        <div for="CustomHost" style="left:20px;font-size:20px;font-weight:300;padding:unset;margin:unset;" class="col-md-2" id="CustomHostDecs">Host:</div>
-                                                        <input type="text" id="CustomHost" class="col-md-4 form-control form-control-sm" style="left:20px;" placeholder="">
-                                                    </div>
-                                                    <p></p>
-                                                    <div class="row" style="margin-right:0px;margin-left:0px;">
-                                                        <div for="CustomType" style="font-size:20px;font-weight:300;padding:unset;margin:unset;" class="col-md-2" id="CustomTypeDecs">Type:</div>
-                                                        <select id="CustomType" class="col-md-4 form-control form-control-sm">
-                                                            <option selected/>none</option>
-                                                            <option>http</option>
-                                                            <option>srtp</option>
-                                                            <option>utp</option>
-                                                            <option>wechat-video</option>
-                                                            <option>dtls</option>
-                                                        </select>
-                                                        <div for="CustomSecurity" style="left:20px;font-size:20px;font-weight:300;padding:unset;margin:unset;" class="col-md-2" id="CustomSecurityDecs">Security:</div>
-                                                        <select id="CustomSecurity" style="left:20px;" class="col-md-4 form-control form-control-sm">
-                                                            <option selected/></option>
-                                                            <option/>TLS</option>
-                                                        </select>
-                                                    </div>
-                                                    <p></p>
-                                                    <div class="row" style="margin-right:0px;margin-left:0px;">
-                                                        <p class="col-md-6"></p>
-                                                        <input type="submit" style="left:20px;" id="V2Milk-customSubmit" class="col-md-6 btn btn-primary btn-sm btn-block" value="Submit">
-                                                    </div>
-                                                </div>
-                                            </span>
-                                            <div class="float-right">
-                                                <span class="icon icon-key5 s-48"></span>
+                                <div class="bg-primary text-white lighten-2" style="border-radius:0 0 5px 5px;">
+                                    <div class="pt-5 pb-2 pl-5 pr-5">
+                                        <h2 class="font-weight-normal"><div id="SubscribeInfo">Subscribe...</div></h2>
+                                        <span class="s-48 text-primary">
+                                            <div class="form-group" style="float:left;width:90%;margin-top:10px;">
+                                                <input type="text" id="SubscribeName" class="form-control form-control-sm" placeholder="Name...">
+                                                <p></p>
+                                                <input type="text" id="SubscribeUrl" class="form-control form-control-sm" placeholder="Url...">
+                                                <p></p>
+                                                <input type="submit" id="V2Milk-subscribSubmit" class="btn btn-primary btn-lg btn-block" value="Submit">
                                             </div>
-                                            <div style="height:320px;"></div>
+                                        </span>
+                                        <div class="float-right">
+                                            <span class="icon icon-laptop_mac s-48"></span>
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="tab-pane animated fadeIn" id="v-pills-tab2" role="tabpanel" aria-labelledby="v-pills-tab2">
-                                    <div class="bg-primary text-white lighten-2" style="border-radius:0 0 5px 5px;">
-                                        <div class="pt-5 pb-2 pl-5 pr-5">
-                                            <h2 class="font-weight-normal"><div id="SubscribeInfo">Subscribe...</div></h2>
-                                            <span class="s-48 text-primary">
-                                                <div class="form-group" style="float:left;width:90%;margin-top:10px;">
-                                                    <input type="text" id="SubscribeName" class="form-control form-control-sm" placeholder="Name...">
-                                                    <p></p>
-                                                    <input type="text" id="SubscribeUrl" class="form-control form-control-sm" placeholder="Url...">
-                                                    <p></p>
-                                                    <input type="submit" id="V2Milk-subscribSubmit" class="btn btn-primary btn-lg btn-block" value="Submit">
-                                                </div>
-                                            </span>
-                                            <div class="float-right">
-                                                <span class="icon icon-laptop_mac s-48"></span>
-                                            </div>
-                                            <div style="height:190px;"></div>
-                                        </div>
+                                        <div style="height:190px;"></div>
                                     </div>
                                 </div>
                             </div>

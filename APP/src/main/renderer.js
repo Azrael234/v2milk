@@ -1,7 +1,6 @@
 'use strict';
 require('./config.js')
 const remote = require('electron').remote
-const {shell} = require('electron')
 const fs = require("fs")
 const path = require('path')
 
@@ -9,10 +8,10 @@ const ipc = require('electron').ipcRenderer;
 const currentWindow = remote.getCurrentWindow()
 const milksubmit = document.getElementById('V2Milk-submit')
 const milksettingsSubmit = document.getElementById('V2Milk-SettingSubmit')
-const milkcustomSubmit = document.getElementById('V2Milk-customSubmit')
 const milksubscribSubmit = document.getElementById('V2Milk-subscribSubmit')
 const milkstop = document.getElementById('V2Milk-stopServers')
 const milkrebootPAC = document.getElementById('V2Milk-rebootPACServer')
+const milkrefreshSystemPackages = document.getElementById('V2Milk-refreshSystemPackages')
 const milkv2logdown = document.getElementById('V2LogToBottom')
 const milkv2statusdown = document.getElementById('V2StatusToBottom')
 const milkaddCustomRoute = document.getElementById('addCustomRoute')
@@ -54,15 +53,11 @@ function initHtml(){
     document.getElementById('RouteLinkedIcon').setAttribute("class", "icon icon-cloud-remove2 s-48")
     document.getElementById('HSelectRoute').innerHTML = getLang("HSelectRoute")
     document.getElementById('HRoute').innerHTML = getLang("HRoute")
-    document.getElementById('HQRCode').innerHTML = getLang("HQRCode")
     document.getElementById('HAction').innerHTML = getLang("HAction")
     document.getElementById('HCSelectRoute').innerHTML = getLang("HCSelectRoute")
     document.getElementById('HCRoute').innerHTML = getLang("HCRoute")
     document.getElementById('HCStatus').innerHTML = getLang("HCStatus")
     document.getElementById('HCAction').innerHTML = getLang("HCAction")
-    document.getElementById('HCCRoute').innerHTML = getLang("HCRoute")
-    document.getElementById('HCCStatus').innerHTML = getLang("HCStatus")
-    document.getElementById('HCCAction').innerHTML = getLang("HCAction")
     document.getElementById('HRoutes').innerHTML = `<i class="icon icon-home2"></i>${getLang("HRoutes")}`
     document.getElementById('HDIY').innerHTML = `<i class="icon icon-plus-circle mb-3"></i>${getLang("HDIY")}`
     document.getElementById('HAboutUs').innerHTML = `<i class="icon icon-question"></i>${getLang("HAboutUs")}`
@@ -76,27 +71,13 @@ function initHtml(){
     document.getElementById('HttpPortDecs').innerHTML = getLang("HttpPortDecs")
     document.getElementById('PACPortDecs').innerHTML = getLang("PACPortDecs")
     document.getElementById('V2Milk-SettingSubmit').value = getLang("SettingSubmit")
-    document.getElementById('CustomConfig').innerHTML = getLang("CustomConfig")
-    document.getElementById('Subscribe').innerHTML = getLang("Subscribe")
     document.getElementById('SubscribeInfo').innerHTML = getLang("SubscribeInfo")
     document.getElementById('SubscribeName').placeholder = getLang("SubscribeName")
     document.getElementById('SubscribeUrl').placeholder = getLang("SubscribeUrl")
-    milkcustomSubmit.value = getLang("CustomSubmit")
     milksubscribSubmit.value = getLang("SubscribSubmit")
     document.getElementById('emailF').placeholder = getLang("Email")
     document.getElementById('passwordF').placeholder = getLang("Password")
     document.getElementById('V2Milk-submit').value = getLang("Submit")
-    document.getElementById('CustomInfo').innerHTML = getLang("CustomInfo")
-    document.getElementById('CustomRemarksDecs').innerHTML = getLang("CustomRemarks")
-    document.getElementById('CustomUUIDDecs').innerHTML = getLang("CustomUUID")
-    document.getElementById('CustomAddressDecs').innerHTML = getLang("CustomAddress")
-    document.getElementById('CustomPortDecs').innerHTML = getLang("CustomPort")
-    document.getElementById('CustomNetworkDecs').innerHTML = getLang("CustomNetwork")
-    document.getElementById('CustomAlterIDDecs').innerHTML = getLang("CustomAlterID")
-    document.getElementById('CustomPathDecs').innerHTML = getLang("CustomPath")
-    document.getElementById('CustomHostDecs').innerHTML = getLang("CustomHost")
-    document.getElementById('CustomTypeDecs').innerHTML = getLang("CustomType")
-    document.getElementById('CustomSecurityDecs').innerHTML = getLang("CustomSecurity")
 }
 
 function initSystemSettings(){
@@ -169,7 +150,6 @@ function initEventListeners(){
 
     milkrefreshSubscribes.addEventListener('click', () => {
         document.getElementById('cRoutePackages').innerHTML = ""
-        document.getElementById('cCRoutePackages').innerHTML = ""
         initCustom()
     })
 
@@ -182,6 +162,10 @@ function initEventListeners(){
         }else{
             alterToast("error", getLang("IllegalData"))
         }
+    })
+
+    milkrefreshSystemPackages.addEventListener('click', () => {
+        ipc.send('onClickControl', 'onRefreshSystemPackages', '')
     })
 }
 
@@ -347,11 +331,12 @@ function loadPackages(message){
 }
 
 function loadPackage(mpackage){
+    console.log(mpackage)
     if(mpackage.nodes.length > 0){
         var routeList = document.getElementById('routePackages')
         var tr = document.createElement("tr")
         var td = document.createElement("td")
-        td.innerHTML = mpackage.package
+        td.innerHTML = `<strong style="font-size:17px;">${mpackage.package}</strong>(${getLang("Used")}: ${(mpackage.usage / 1024 / 1024 / 1024).toFixed(2)} / ${mpackage.traffic / 1024 / 1024 / 1024} G)`
         tr.appendChild(td)
         var td = document.createElement("td")
         td.innerHTML = ''
@@ -367,10 +352,7 @@ function loadPackage(mpackage){
             td.innerHTML = nodename[0]
             tr.appendChild(td)
             var td = document.createElement("td")
-            td.innerHTML = `<button type="button" class="btn btn-primary btn-xs" onclick="onClickControl('register','null')">${getLang("QRCode")}</button>`
-            tr.appendChild(td)
-            var td = document.createElement("td")
-            td.innerHTML = `<button type="button" class="btn btn-info btn-xs" onclick="onClickControl('onV2RayGlobalConnect','${mpackage.uuid}|${mpackage.nodes[i].replace(/[\r\n]/g, "")}')">${getLang("ConnectGlobalMode")}</button><button type="button" class="btn btn-success btn-xs" onclick="onClickControl('onV2RayPACConnect','${mpackage.uuid}|${mpackage.nodes[i].replace(/[\r\n]/g, "")}')">${getLang("ConnectPACMode")}</button>`
+            td.innerHTML = `<button type="button" class="btn btn-info btn-xs" onclick="onClickControl('onV2RayGlobalConnect','${mpackage.uuid}|${mpackage.nodes[i].replace(/[\r\n]/g, "")}')">${getLang("ConnectGlobalMode")}</button>      <button type="button" class="btn btn-success btn-xs" onclick="onClickControl('onV2RayPACConnect','${mpackage.uuid}|${mpackage.nodes[i].replace(/[\r\n]/g, "")}')">${getLang("ConnectPACMode")}</button>`
             tr.appendChild(td)
             routeList.appendChild(tr)
         }
@@ -437,7 +419,7 @@ function parseSubscribeData(arr){
             tr.appendChild(td)
             var td = document.createElement("td")
             var addtoadr = `${node.id}|${node.ps}|${node.add}|${node.port}|${node.type}|${node.tls}|${node.host}|${node.path}|${node.net}|1|${node.aid}`
-            td.innerHTML = `<button type="button" class="btn btn-info btn-xs" onclick="onClickControl('onV2RayGlobalConnect','${addtoadr}')">${getLang("ConnectGlobalMode")}</button><button type="button" class="btn btn-success btn-xs" onclick="onClickControl('onV2RayPACConnect','${addtoadr}')">${getLang("ConnectPACMode")}</button>`
+            td.innerHTML = `<button type="button" class="btn btn-info btn-xs" onclick="onClickControl('onV2RayGlobalConnect','${addtoadr}')">${getLang("ConnectGlobalMode")}</button>       <button type="button" class="btn btn-success btn-xs" onclick="onClickControl('onV2RayPACConnect','${addtoadr}')">${getLang("ConnectPACMode")}</button>`
             tr.appendChild(td)
             cRouteList.appendChild(tr)
         }
@@ -461,9 +443,6 @@ function noCustomData(type){
     switch(type){
         case 'Subscribe':
             cRouteList = document.getElementById('cRoutePackages')
-            break
-        case 'Custom':
-            cRouteList = document.getElementById('cCRoutePackages')
             break
         default:
             cRouteList = null
