@@ -1,11 +1,13 @@
 {
   "name": "V2Milk",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Very 2 Milk",
   "main": "src/main/main.js",
   "scripts": {
     "start": "export NODE_ENV=noPack && electron .",
     "dev": "export NODE_ENV=Devv && electron .",
+    "startw": "set NODE_ENV=noPack&&electron .",
+    "devw": "set NODE_ENV=Devv&&electron .",
     "dist:mac": "CSC_IDENTITY_AUTO_DISCOVERY=false DEBUG=electron-builder electron-builder --platform darwin",
     "dist": "electron-builder .",
     "dist:linux": "electron-builder --linux --ia32 --x64",

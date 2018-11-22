@@ -43,8 +43,10 @@ npm install -g electron-builder
 ```
 
 # Testing
-* Dev Mode     ```npm run dev```
-* Normal Mode  ```npm run start```
+* Dev Mode      (Macos/Linux)     ```npm run dev```
+* Normal Mode   (Macos/Linux)     ```npm run start```
+* Dev Mode      (Windows)         ```npm run devw```
+* Normal Mode   (Windows)         ```npm run startw```
 
 # Compile
 * Put the [V2Ray-Core](https://github.com/v2ray/v2ray-core/releases) to APP/extra/v2ray-core
@@ -66,6 +68,7 @@ npm install -g electron-builder
 * <a href='https://ko-fi.com/U7U7K54E' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://az743702.vo.msecnd.net/cdn/kofi4.png?v=f' border='0' alt='Buy Me a Coffee' /></a>
 
 # Update Log
+* 0.1.1 Fix the bug caused by space in the path
 * 0.1.0 Project done, Bug fixed.
 * 0.0.6 Bug fix, UI Improvements, Changed Alert() to Toasts
 * 0.0.5 Fixed 3.46, improved subscribe

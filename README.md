@@ -47,8 +47,10 @@ npm install -g electron-builder
 ```
 
 # 测试方法
-* 开发模式 ```npm run dev```
-* 普通模式 ```npm run start```
+* 开发模式(Macos/Linux)   ```npm run dev```
+* 普通模式(Macos/Linux)   ```npm run start```
+* 开发模式(Windows)       ```npm run devw```
+* 普通模式(Windows)       ```npm run startw```
 
 # 编译方式
 * 将最新的 [V2Ray-Core](https://github.com/v2ray/v2ray-core/releases) 放入 APP/extra/v2ray-core 的对应目录下
@@ -72,6 +74,7 @@ npm install -g electron-builder
 * <a href='https://ko-fi.com/U7U7K54E' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://az743702.vo.msecnd.net/cdn/kofi4.png?v=f' border='0' alt='Buy Me a Coffee' /></a>
 
 # 更新日志
+* 0.1.1 修正项目遗留的windows下空格问题
 * 0.1.0 项目开发完成，移除不必要的二维码支持和自定义节点支持并转向V2rayM的开发，并修复大量bug和添加功能
 * 0.0.6 少量Bug修复，UI优化，修改alert弹窗为toast
 * 0.0.5 修正3.46带来的启动问题，优化订阅
