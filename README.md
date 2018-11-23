@@ -4,6 +4,7 @@ V2Ray 跨平台定制客户端(For V2RaySocks)
 ### Readme in English: [Readme.md](https://github.com/Zzm317/V2Milk/blob/master/READMEEN.md)
 
 * 注意，0.1.0使用的打包器从electron-packager改成了electron-builder，请注意看 安装方法 安装，不然将报错！！！！！
+* Windows下的用户不能将本项目放在任何包含**中文**和**空格**的目录下，请不要为此提issue，我也不会去管这个问题
 
 # 编写进度
 * ~~MacOS部分~~(已完成)
@@ -74,7 +75,7 @@ npm install -g electron-builder
 * <a href='https://ko-fi.com/U7U7K54E' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://az743702.vo.msecnd.net/cdn/kofi4.png?v=f' border='0' alt='Buy Me a Coffee' /></a>
 
 # 更新日志
-* 0.1.1 修正项目遗留的windows下空格问题
+* 0.1.1 修正日志
 * 0.1.0 项目开发完成，移除不必要的二维码支持和自定义节点支持并转向V2rayM的开发，并修复大量bug和添加功能
 * 0.0.6 少量Bug修复，UI优化，修改alert弹窗为toast
 * 0.0.5 修正3.46带来的启动问题，优化订阅
