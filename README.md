@@ -4,7 +4,7 @@ V2Ray 跨平台定制客户端(For V2RaySocks)
 ### Readme in English: [Readme.md](https://github.com/Zzm317/V2Milk/blob/master/READMEEN.md)
 
 * 注意，0.1.0使用的打包器从electron-packager改成了electron-builder，请注意看 安装方法 安装，不然将报错！！！！！
-* Windows下的用户不能将本项目放在任何包含**中文**和**空格**的目录下，请不要为此提issue，我也不会去管这个问题
+* Windows下的用户不能将本项目和成品放在任何包含**中文**和**空格**的目录下，请不要为此提issue，我也不会去管这个问题
 
 # 编写进度
 * ~~MacOS部分~~(已完成)
