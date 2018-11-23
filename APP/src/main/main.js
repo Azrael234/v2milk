@@ -31,9 +31,6 @@ if(isDev){
 if(isNoPack){
     __libname = path.dirname(path.dirname(__dirname))
 }
-if(isWin){
-    __libname = replaceAll(__libname, " ", "\\ ")
-}
 
 __static = path.join(__libname, "extra", "static")
 
