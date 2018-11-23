@@ -4,6 +4,7 @@ V2Ray Cross-Platform Client(For V2raySocks)
 ### 中文: [Readme.md](https://github.com/Zzm317/V2Milk/blob/master/README.md)
 
 * Important: the compile tool has changed to electron-builder in ver 0.1.0, so do not forget to install that. More infos in Installation.
+* To Windows users: This project should put and run in pathes with no spaces, and I will not fix this.
 
 # In Progress
 * ~~V2Ray for MacOS~~(Done)
