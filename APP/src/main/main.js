@@ -84,7 +84,11 @@ function init(){
     ];
     initProxyHelper().then(function(){
         initConfig().then(function(){
-            Menu.setApplicationMenu(Menu.buildFromTemplate(template))
+            if(isMac){
+                Menu.setApplicationMenu(Menu.buildFromTemplate(template))
+            }else{
+                Menu.setApplicationMenu(null)
+            }
             createWindow()
             renderTray()
             initCustomConfig().then(function(){
