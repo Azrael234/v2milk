@@ -69,10 +69,6 @@ npm install -g electron-builder
 
 * 生成的文件在dist目录中
 
-# 其他
-* ETH钱包 0xaD8ABb15e4B8B58f5FbEE9CAb42096c1d640C234
-* 链克钱包 0x4cfa7215324f2cc521beeb35c8a85c9afdbcda7e
-* <a href='https://ko-fi.com/U7U7K54E' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://az743702.vo.msecnd.net/cdn/kofi4.png?v=f' border='0' alt='Buy Me a Coffee' /></a>
 
 # 更新日志
 * 0.1.1 修正日志
@@ -87,4 +83,4 @@ npm install -g electron-builder
 # 后记
 * 开源不代表你可以拿去盈利，也不代表你可以堂而皇之的加上你的加群链接
 * 我不特地说是谁了，自己好自为之，没技术不是你随意加其他东西的理由
-* 本项目唯一TG讨论组 [开发，不存在的](https://t.me/V2rayIsNotGreat)
+
