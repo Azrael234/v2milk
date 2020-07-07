@@ -24,7 +24,7 @@
   "author": "Suzume",
   "license": "Apache-2.0",
   "devDependencies": {
-    "electron": "^3.0.6"
+    "electron": "^9.1.0"
   },
   "dependencies": {
     "bluebird": "^3.5.2",
